@@ -7,11 +7,11 @@ require 'sinatra/reloader'
 enable :sessions
 
 get('/') do 
-    slim(:login)
+    slim :start, layout: false
 end
 
-get('/register') do
-    slim(:register)
+get('/login') do 
+    slim :login, layout: false
 end
 
 post('/login') do
@@ -29,10 +29,18 @@ post('/login') do
         session[:user] = result['name']
         session[:user_email] = email
         
-        redirect('/register')
+        redirect('/overview')
     else
         puts "Wrong password"
     end
+end
+
+get('/register') do
+    slim :register, layout: false
+end
+
+def image_to_binary(image_path)
+    File.open(image_path, 'rb') { |file| file.read }
 end
 
 post('/users/new') do 
@@ -41,6 +49,7 @@ post('/users/new') do
     email = params[:email]
     password = params[:password]
     password_confirm = params[:password_confirm]
+    #pfp = params[:pfp]
     name = firstname.strip.capitalize + " " + lastname.strip.capitalize
     puts "--------------------------"
     puts name, email, password, password_confirm
@@ -56,9 +65,22 @@ post('/users/new') do
     elsif password == password_confirm
         puts "inside main"
         password_digest = BCrypt::Password.create(password)
-        db.execute("INSERT INTO users (name, email, pwdigest) VALUES (?, ?, ?)", name, email, password_digest)
+        db.execute("INSERT INTO users (name, email, pwdigest) VALUES (?, ?, ?)", name, email, password_digest,)
     else
         puts "Passwords don't match"
     end
-    redirect('/register')
+    redirect('/login')
+end
+
+get('/logout') do
+    session.clear
+    redirect('/')
+end
+
+get('/overview') do
+    slim(:overview)
+end
+
+get('/myworkouts') do 
+    slim(:myworkouts)
 end

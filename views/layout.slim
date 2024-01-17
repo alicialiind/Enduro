@@ -4,8 +4,23 @@ html lang="en"
         meta charset="UTF-8"/
         meta http-equiv="X-UA-Compatible" content="IE=edge"/
         meta name="viewport" content="width=device-width, initial-scale=1.0"/
+        link rel="stylesheet" href="/css/style.css"/
         title Document
     body 
-        h1 Layout 
+        header 
+            img src="/img/menu-icon.svg" alt="open menu" class="open-menu-icon" id="open_menu" onClick="openNav()"/
+            nav id="nav" class=""
+                ul 
+                    li 
+                        a href="/overview" Overview 
+                    li 
+                        a href="/myworkouts" My workouts
+                img src="/img/close-icon.svg" alt="close menu" class="close-menu-icon" id="close_menu" onClick="closeNav()"/
+                a href="/logout" Log out 
+            .user-information
+                p #{session[:user]}
+                img src="/img/pfp.svg" alt="profile picture"/
+
+    script src="/js/script.js" 
 
     == yield
