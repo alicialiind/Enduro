@@ -3,8 +3,36 @@ require 'slim'
 require 'sqlite3'
 require 'bcrypt'
 require 'sinatra/reloader'
+require 'date'
 
 enable :sessions
+
+def get_calendar(month, year)
+    start_date = Date.new(year, month, 1)
+    end_date = Date.new(year, month, -1)
+
+    puts start_date.strftime("%B %Y").center(20)
+    puts "Mo Tu We Th Fr Sa Su"
+
+    start_day = start_date.wday - 1
+    start_day = 6 if start_day < 0
+
+    print "    " * start_day
+    start_date.upto(end_date) do |date|
+        print date.day.to_s.rjust(2) + " "
+        print "\n" if date.wday == 0
+    end
+    print("\n")
+end
+
+get_calendar(3,2024)
+
+
+def open_db(path)
+    db = SQLite3::Database.new('db/workout.db')
+    db.results_as_hash = true
+    return db
+end
 
 get('/') do 
     slim :start, layout: false
@@ -18,8 +46,7 @@ post('/login') do
     email = params[:email]
     password = params[:password]
 
-    db = SQLite3::Database.new('db/workout.db')
-    db.results_as_hash = true
+    db = open_db("db/workout.db")
     result = db.execute("SELECT * FROM users WHERE email = ?", email).first
     pwdigest = result['pwdigest']
     id = result['id']
@@ -54,7 +81,7 @@ post('/users/new') do
     puts "--------------------------"
     puts name, email, password, password_confirm
 
-    db = SQLite3::Database.new('db/workout.db')
+    db = open_db("db/workout.db")
     email_taken = []
     email_taken = db.execute("SELECT COUNT (email) FROM users WHERE email = ?", email)
     puts "before if"
