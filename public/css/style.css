@@ -73,3 +73,9 @@ header nav ul li a {
     align-items: center;
     column-gap: 15px;
 }
+
+.calender {
+    display: grid;
+    grid-template-columns: repeat(7, 50px);
+    background-color: red;
+}

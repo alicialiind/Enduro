@@ -4,29 +4,40 @@ require 'sqlite3'
 require 'bcrypt'
 require 'sinatra/reloader'
 require 'date'
+require 'time'
 
 enable :sessions
 
-def get_calendar(month, year)
-    start_date = Date.new(year, month, 1)
-    end_date = Date.new(year, month, -1)
+helpers do
+    def get_calendar()
+        date = Time.now()
+        year = date.year
+        month = date.month
+        start_date = Date.new(year, month, 1)
+        end_date = Date.new(year, month, -1)
 
-    puts start_date.strftime("%B %Y").center(20)
-    puts "Mo Tu We Th Fr Sa Su"
+        month_information = [year, start_date.strftime("%B"), date.strftime("%e")]
+        puts month_information
+        puts Date.new(year, month, 1)
+        
+        
+        puts start_date.strftime("%B %Y")
+        puts "Mo Tu We Th Fr Sa Su"
 
-    start_day = start_date.wday - 1
-    start_day = 6 if start_day < 0
+        start_day = start_date.wday
+        puts start_day
+        start_day = 6 if start_day < 0
 
-    print "    " * start_day
-    start_date.upto(end_date) do |date|
-        print date.day.to_s.rjust(2) + " "
-        print "\n" if date.wday == 0
+        print "   " * (start_day - 1)
+        start_date.upto(end_date) do |date|
+            print date.day.to_s.rjust(2) + " "
+            print "\n" if date.wday == 0
+        end
+        print("\n")
+
+        return month_information
     end
-    print("\n")
 end
-
-get_calendar(3,2024)
-
 
 def open_db(path)
     db = SQLite3::Database.new('db/workout.db')
