@@ -1,5 +1,8 @@
-- month_information = get_calendar()
-h1= "#{month_information[0]} #{month_information[1]}"
+- month_information = get_calendar(2024, 2)
+- amount_of_days = month_information[2]
+- first_day = month_information[3]
+
+h1 = "#{month_information[0]} #{month_information[1]}"
 .calender 
     p Mo 
     p Tu 
@@ -8,4 +11,14 @@ h1= "#{month_information[0]} #{month_information[1]}"
     p Fr 
     p Sa 
     p Su
-    p = month_information[2]
+    // Amount of spaces before first date
+    - i = 1
+    - while i < first_day
+        p 
+        - i += 1
+
+    // Print days in month
+    - i = 1
+    -while i <= amount_of_days
+        p = i
+        - i += 1

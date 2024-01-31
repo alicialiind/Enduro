@@ -9,33 +9,17 @@ require 'time'
 enable :sessions
 
 helpers do
-    def get_calendar()
-        date = Time.now()
-        year = date.year
-        month = date.month
-        start_date = Date.new(year, month, 1)
-        end_date = Date.new(year, month, -1)
-
-        month_information = [year, start_date.strftime("%B"), date.strftime("%e")]
+    def get_calendar(year, month)
+        days = Date.new(year, month, -1).day
+        first_day = Date.new(year, month, 1)
+        weekday = first_day.cwday
+        month_information = [year, Date::MONTHNAMES[month], days, weekday]
         puts month_information
-        puts Date.new(year, month, 1)
-        
-        
-        puts start_date.strftime("%B %Y")
-        puts "Mo Tu We Th Fr Sa Su"
-
-        start_day = start_date.wday
-        puts start_day
-        start_day = 6 if start_day < 0
-
-        print "   " * (start_day - 1)
-        start_date.upto(end_date) do |date|
-            print date.day.to_s.rjust(2) + " "
-            print "\n" if date.wday == 0
-        end
-        print("\n")
-
         return month_information
+    end
+
+    def counter(start_number)
+        return start_number += 1
     end
 end
 
@@ -120,5 +104,27 @@ get('/overview') do
 end
 
 get('/myworkouts') do 
-    slim(:myworkouts)
+    db = open_db("db/workout.db")
+    workouts = db.execute("SELECT * FROM workouts")
+
+    slim(:"/workouts/my_workouts", locals: { workouts: workouts })
+end
+
+get('/create_new_workout') do 
+    slim(:"/workouts/new_workout")
+end
+
+post('/workout/new') do 
+    title = params[:title]
+    description = params[:description]
+    exercises = params[:exercise]
+    sets = params[:sets]
+    reps = params[:reps]
+    p "---------------"
+    p title
+    p description
+    p exercises
+    p sets
+    p reps
+
 end

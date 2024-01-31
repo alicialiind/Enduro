@@ -1,0 +1,19 @@
+h1 new workout
+form action="/workout/new" method="post"
+    input type="text" name="title" placeholder="Title"
+    input type="text" name="description" placeholder="Description"
+    label for="run_type" Run 
+    input type="checkbox" name="run" id="run_type"
+    label for="weight_type" Weight training
+    input type="checkbox" name="weight" id="weight_type"
+    div class="exercises" 
+        h3 Exercises
+        div id="exercises"
+            input type="text" name="exercise[]" placeholder="exercise"
+            input type="number" name="sets[]" placeholder="sets"
+            input type="number" name="reps[]" placeholder="reps"
+        button type="button" id="add_new_exercise_button" Add new exercise
+        br
+    input type="submit" value="Create Workout"
+    
+
