@@ -1,5 +1,9 @@
 h1 My workouts
 a href="/create_new_workout" Create new workout 
+br
+br
 
 - workouts.each do |workout|
-    p = workout["name"]
+    a href="myworkouts/#{workout["id"]}"  = workout["title"]
+    p = workout["description"]
+    br

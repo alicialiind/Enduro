@@ -1,0 +1,14 @@
+h1 = workout["title"]
+p = workout["description"] 
+
+- exercises.each do |exercise|
+    .exercise
+        p = exercise["exercise_name"]
+        p = "Sets: #{exercise["sets"]}"
+        p = "Reps: #{exercise["reps"]}"
+    br
+
+a href="myworkouts/#{workout["id"]}/edit" 
+    button type="button" Edit workout
+form action="#{workout["id"]}/delete" method="POST" 
+    input type="submit" value="Delete workout"

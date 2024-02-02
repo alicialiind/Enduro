@@ -120,11 +120,44 @@ post('/workout/new') do
     exercises = params[:exercise]
     sets = params[:sets]
     reps = params[:reps]
-    p "---------------"
-    p title
-    p description
-    p exercises
-    p sets
-    p reps
 
+    exercise_tot = []
+    i = 0
+    while i < exercises.length()
+        exercise_group = []
+        exercise_group.append(exercises[i])
+        exercise_group.append(sets[i])
+        exercise_group.append(reps[i])
+        exercise_tot.append(exercise_group)
+        p exercise_tot
+        i += 1
+    end
+
+    db = open_db("db/workout.db")
+    db.execute("INSERT INTO workouts (user_id, title, description) VALUES (?, ?, ?)", session[:id], title, description)
+    workout_id = db.last_insert_row_id
+
+    exercise_tot.each do |exercise|
+        db.execute("INSERT INTO exercises (exercise_name, sets, reps, workout_id) VALUES (?, ?, ?, ?)", exercise[0], exercise[1], exercise[2], workout_id)
+    end
+    
+    redirect('/myworkouts')
+end
+
+get('/myworkouts/:id') do
+    workout_id = params[:id].to_i
+    db = open_db("db/workout.db")
+    workout = db.execute("SELECT * FROM workouts WHERE id = ?", workout_id).first
+    exercises = db.execute("SELECT * FROM exercises WHERE workout_id = ?", workout_id)
+
+    slim(:"/workouts/show_workout", locals: { workout: workout, exercises: exercises })
+end
+
+post('/myworkouts/:id/delete') do
+    workout_id = params[:id].to_i
+    db = open_db("db/workout.db")
+    db.execute("DELETE FROM workouts WHERE id = ?", workout_id)
+    db.execute("DELETE FROM exercises WHERE workout_id = ?", workout_id)
+
+    redirect('/myworkouts')
 end
