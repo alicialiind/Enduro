@@ -3,8 +3,19 @@ const closeMenu = document.getElementById("close_menu");
 const navMenu = document.getElementById("nav")
 const newExerciseButton = document.getElementById("add_new_exercise_button")
 const exerciseContainer = document.getElementById("exercises")
+const calendarTitle = document.getElementById("calendar_title")
+const leftArrow = document.getElementById("left_calendar_arrow")
+const rightArrow = document.getElementById("right_calendar_arrow")
 
+const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+const d = new Date()
 
+let year = d.getFullYear()
+let month = months[d.getMonth()]
+
+document.addEventListener('DOMContentLoaded', (event) => {
+    calendarTitle.innerHTML = year + " " + month;
+})
 
 function openNav() {
     navMenu.classList.add("show-nav");
@@ -34,3 +45,4 @@ function addExercise() {
 }
 
 newExerciseButton.addEventListener('click', addExercise)
+

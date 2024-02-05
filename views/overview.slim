@@ -2,23 +2,29 @@
 - amount_of_days = month_information[2]
 - first_day = month_information[3]
 
-h1 = "#{month_information[0]} #{month_information[1]}"
-.calender 
-    p Mo 
-    p Tu 
-    p We 
-    p Th 
-    p Fr 
-    p Sa 
-    p Su
-    // Amount of spaces before first date
-    - i = 1
-    - while i < first_day
-        p 
-        - i += 1
 
-    // Print days in month
-    - i = 1
-    -while i <= amount_of_days
-        p = i
-        - i += 1
+.calender-wrapper
+    h1 id="calendar_title"
+    .calender 
+        p Mo 
+        p Tu 
+        p We 
+        p Th 
+        p Fr 
+        p Sa 
+        p Su
+        // Amount of spaces before first date
+        - i = 1
+        - while i < first_day
+            p 
+            - i += 1
+
+        // Print days in month
+        - i = 1
+        - while i <= amount_of_days
+            .day
+                p = i
+            - i += 1
+    .arrows
+        img src="/img/left-arrow.svg" alt="left arrow" id="left_calendar_arrow"/
+        img src="/img/right-arrow.svg" alt="right arrow" id="right_calendar_arrow"/
