@@ -129,7 +129,6 @@ post('/workout/new') do
         exercise_group.append(sets[i])
         exercise_group.append(reps[i])
         exercise_tot.append(exercise_group)
-        p exercise_tot
         i += 1
     end
 
@@ -159,5 +158,48 @@ post('/myworkouts/:id/delete') do
     db.execute("DELETE FROM workouts WHERE id = ?", workout_id)
     db.execute("DELETE FROM exercises WHERE workout_id = ?", workout_id)
 
+    redirect('/myworkouts')
+end
+
+get('/myworkouts/:id/edit') do
+    workout_id = params[:id].to_i
+    db = open_db("db/workout.db")
+    workout_info = db.execute("SELECT * FROM workouts WHERE id = ?", workout_id).first
+    exercises = db.execute("SELECT * FROM exercises WHERE workout_id = ?", workout_id)
+
+    slim(:"/workouts/edit_workout", locals: { workout: workout_info, exercises: exercises })
+end
+
+post('/myworkouts/:id/update') do
+    id = params[:id].to_i
+    title = params[:title]
+    description = params[:description]
+    exercises = params[:exercise]
+    sets = params[:sets]
+    reps = params[:reps]
+
+    exercise_tot = []
+    i = 0
+    while i < exercises.length()
+        exercise_group = []
+        exercise_group.append(exercises[i])
+        exercise_group.append(sets[i])
+        exercise_group.append(reps[i])
+        exercise_tot.append(exercise_group)
+        i += 1
+    end
+
+    db = open_db("db/workout.db")
+    db.execute("UPDATE workouts SET title = ?, description = ? WHERE id = ?", title, description, id)
+
+    exercise_ids = db.execute("SELECT id FROM exercises WHERE workout_id = ?", id)
+
+    i = 0
+    exercise_tot.each do |exercise|
+        exercise_id = exercise_ids[i]["id"]
+        db.execute("UPDATE exercises SET exercise_name = ?, sets = ?, reps = ? WHERE id = ?", exercise[0], exercise[1], exercise[2], exercise_id)
+        i += 1
+    end
+    
     redirect('/myworkouts')
 end
