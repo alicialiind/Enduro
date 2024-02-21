@@ -8,18 +8,20 @@ html lang="en"
         title Document
     body 
         header 
-            img src="/img/menu-icon.svg" alt="open menu" class="open-menu-icon" id="open_menu" onClick="openNav()"/
             nav id="nav" class=""
                 ul 
                     li 
-                        a href="/overview" Overview 
+                        a href="/overview"
+                            img src="/img/calendar-icon.svg" alt=""/ 
                     li 
-                        a href="/myworkouts" My workouts
-                img src="/img/close-icon.svg" alt="close menu" class="close-menu-icon" id="close_menu" onClick="closeNav()"/
-                a href="/logout" Log out 
-            .user-information
-                p #{session[:user]}
-                img src="/img/pfp.svg" alt="profile picture"/
+                        a href="/myworkouts"
+                            img src="/img/weight-icon.svg" alt=""/
+                    li
+                        a href=""
+                            p #{session[:user]}
+                            img src="/img/pfp.svg" alt="profile picture"/
+                    li
+                        a href="/logout" Log out 
 
     
 

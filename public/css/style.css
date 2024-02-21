@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
+
 * {
     margin: 0;
     padding: 0;
@@ -6,7 +8,15 @@
 
 body {
     width: 100%;
-    height: 100vh
+    height: 100vh;
+    background-color: #1A1A1D;
+    color: #fff;
+    overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6, p {
+    color: white;
+    font-family: "Open Sans", sans-serif;
 }
 
 header {
@@ -15,8 +25,9 @@ header {
     justify-content: right;
     height: 80px;
     padding: 0 10px;
-    box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
-    margin-bottom: 50px;
+    background-color: #2C2F32;
+    position: fixed;
+    bottom: 0;
 }
 
 header img {
@@ -40,32 +51,25 @@ header img {
 }
 
 header nav {
-    height: 100vh;
-    width: 200px;
-    position: absolute;
-    left: -200px;
-    padding: 70px 30px;
+    height: auto;
+    width: 100%;
     transition: 0.4s;
-    background-color: rgb(234, 234, 234);
+    background-color: transparent;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    color: white;
 }
 
-.show-nav {
-    left: 0;
-}
 
 header nav ul {
     list-style: none;
     display: flex;
-    flex-direction: column;
-    row-gap: 20px;
 }
 
 header nav ul li a {
     text-decoration: none;
-    color: #222;
+    color: white;
 }
 
 .user-information {
@@ -74,22 +78,64 @@ header nav ul li a {
     column-gap: 15px;
 }
 
+.overview-body-wrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 24px;
+}
+
+.overview-body-wrapper h1 {
+    width: 60%;
+    text-align: left;
+    margin: 16px 0 8px 0;
+}
+
+.overview-body-wrapper h2 {
+    width: 100%;
+    text-align: left;
+}
+
 .calender-wrapper {
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 400px;
+    justify-content: center;
+    width: auto;
+    background-color: #2C2F32;
+    border-radius: 12px;
+    padding: 16px 32px;
+    position: relative;
+}
+
+.calender-wrapper h2 {
+    font-size: 16px;
+    font-weight: 600;
 }
 
 .calender {
     display: grid;
-    grid-template-columns: repeat(7, 50px);
-    row-gap: 8px;
+    grid-template-columns: repeat(7, auto);
+    row-gap: 4px;
+}
+
+.calender p {
+    font-size: 14px;
+    font-weight: 600;
+    text-align: center;
+    margin: 4px 8px;
+}
+
+.calender a {
+    text-decoration: none;
+}
+
+.calender a:hover {
+    opacity: 50%;
 }
 
 .day {
-    border-radius: 50%;
-    border: 1px solid #222;
     width: 30px;
     height: 30px;
     display: flex;
@@ -97,12 +143,27 @@ header nav ul li a {
     align-items: center;
 }
 
+.todaysdate {
+    background-color: #950740;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 .arrows {
     display: flex;
-    margin-top: 8px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 16px;
+}
+
+img#left_calendar_arrow, img#right_calendar_arrow {
     cursor: pointer;
 }
 
-.arrows img {
-    cursor: pointer;
-}

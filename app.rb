@@ -9,11 +9,34 @@ require 'time'
 enable :sessions
 
 helpers do
+    def get_weekday_from_date(year, month, day)
+        date = Date.new(year.to_i, month.to_i, day.to_i)
+        return date.strftime('%A')
+    end
+
+    def get_month_name(month)
+        return Date::MONTHNAMES[month]
+    end
+
+    def get_todays_date()
+        d = DateTime.now
+        day_today = d.strftime("%d").to_i
+        month_number_today = d.strftime("%m").to_i
+        month_name_today = Date::MONTHNAMES[d.strftime("%m").to_i]
+        year_today = d.strftime("%Y").to_i
+        
+        date = [].append(day_today, month_number_today, month_name_today, year_today)
+        puts date
+        return date
+    end
+
     def get_calendar(year, month)
         days = Date.new(year, month, -1).day
         first_day = Date.new(year, month, 1)
+        puts first_day
         weekday = first_day.cwday
         month_information = [year, Date::MONTHNAMES[month], days, weekday]
+        puts "--------"
         puts month_information
         return month_information
     end
@@ -202,4 +225,20 @@ post('/myworkouts/:id/update') do
     end
     
     redirect('/myworkouts')
+end
+
+get('/date/:year/:month/:day') do
+    year = params[:year]
+    month = params[:month]
+    day = params[:day]
+
+    slim(:"date/show_date", locals: { year: year, month: month, day: day })
+end
+
+get('/date/add/:year/:month/:day') do
+    year = params[:year]
+    month = params[:month]
+    day = params[:day]
+
+    slim(:"date/add_date", locals: { year: year, month: month, day: day })
 end
