@@ -1,1 +1,6 @@
-h1 ADD
+h1 Choose which workout to add: 
+
+- workouts.each do |workout|
+    p = workout["title"]
+    form action="/date/new/#{year}/#{month}/#{day}/#{workout["id"]}" method="post" 
+        button Add

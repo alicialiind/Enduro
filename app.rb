@@ -66,17 +66,23 @@ post('/login') do
 
     db = open_db("db/workout.db")
     result = db.execute("SELECT * FROM users WHERE email = ?", email).first
-    pwdigest = result['pwdigest']
-    id = result['id']
 
-    if BCrypt::Password.new(pwdigest) == password
-        session[:id] = id
-        session[:user] = result['name']
-        session[:user_email] = email
-        
-        redirect('/overview')
+    if result.nil?
+        puts "User not found"
+        redirect('/login')
     else
-        puts "Wrong password"
+        pwdigest = result['pwdigest']
+        id = result['id']
+
+        if BCrypt::Password.new(pwdigest) == password
+            session[:id] = id
+            session[:user] = result['name']
+            session[:user_email] = email
+            
+            redirect('/overview')
+        else
+            puts "Wrong password"
+        end
     end
 end
 
@@ -101,11 +107,11 @@ post('/users/new') do
 
     db = open_db("db/workout.db")
     email_taken = []
-    email_taken = db.execute("SELECT COUNT (email) FROM users WHERE email = ?", email)
+    email_taken = db.execute("SELECT COUNT (email) AS email_count FROM users WHERE email = ?", email)
     puts "before if"
-    puts email_taken[0]
+    puts email_taken.first['email_count']
 
-    if email_taken[0] != [0]
+    if email_taken.first['email_count'] > 0
         puts "Email already in use"
     elsif password == password_confirm
         puts "inside main"
@@ -123,12 +129,37 @@ get('/logout') do
 end
 
 get('/overview') do
-    slim(:overview)
+    todays_date = get_todays_date()
+    todays_date_str = "#{todays_date[3]}-#{todays_date[1]}-#{todays_date[0]}"
+    puts "DATE"
+    p todays_date_str
+
+    #For week:
+    today = Date.today
+    week_start = today - (today.wday - 1) % 7
+    week_end = week_start + 6
+    week_start_str = week_start.strftime("%Y-%-m-%-d")
+    week_end_str = week_end.strftime("%Y-%-m-%-d")
+    puts week_start, week_end
+
+    db = open_db("db/workout.db")
+
+    todays_workouts = db.execute("SELECT w.* FROM workouts w
+    JOIN workouts_schedules ws ON w.id = ws.workout_id
+    JOIN schedules s ON ws.schedule_id = s.id
+    WHERE s.date = ? AND s.user_id = ?", [todays_date_str, session[:id]])
+
+    weeks_workouts = db.execute("SELECT w.* FROM workouts w
+    JOIN workouts_schedules ws ON w.id = ws.workout_id
+    JOIN schedules s ON ws.schedule_id = s.id
+    WHERE s.date BETWEEN ? AND ? AND s.user_id = ?", [week_start_str, week_end_str, session[:id]])
+
+    slim(:overview, locals: { todays_workouts: todays_workouts, weeks_workouts: weeks_workouts })
 end
 
 get('/myworkouts') do 
     db = open_db("db/workout.db")
-    workouts = db.execute("SELECT * FROM workouts")
+    workouts = db.execute("SELECT * FROM workouts WHERE user_id = ?", session[:id])
 
     slim(:"/workouts/my_workouts", locals: { workouts: workouts })
 end
@@ -231,14 +262,53 @@ get('/date/:year/:month/:day') do
     year = params[:year]
     month = params[:month]
     day = params[:day]
+    date = year + "-" + month + "-" + day
+    puts "DATE"
+    puts date
 
-    slim(:"date/show_date", locals: { year: year, month: month, day: day })
+    db = open_db("db/workout.db")
+    workouts = db.execute("SELECT w.* FROM workouts w
+    JOIN workouts_schedules ws ON w.id = ws.workout_id
+    JOIN schedules s ON ws.schedule_id = s.id
+    WHERE s.date = ? AND s.user_id = ?", [date, session[:id]])
+
+    slim(:"date/show_date", locals: { year: year, month: month, day: day, workouts: workouts })
 end
 
 get('/date/add/:year/:month/:day') do
     year = params[:year]
     month = params[:month]
     day = params[:day]
+    date = "#{year}-#{month}-#{day}"
 
-    slim(:"date/add_date", locals: { year: year, month: month, day: day })
+    db = open_db("db/workout.db")
+    workouts = db.execute("SELECT * FROM workouts WHERE user_id = ?", session[:id])
+
+    slim(:"date/add_date", locals: { year: year, month: month, day: day, workouts: workouts })
+end
+
+post('/date/new/:year/:month/:day/:workout_id') do
+    year = params[:year]
+    month = params[:month]
+    day = params[:day]
+    workout_id = params[:workout_id]
+    date = "#{year}-#{month}-#{day}"
+    puts "POST DATE"
+    puts date
+    puts workout_id
+
+    db = open_db("db/workout.db")
+    db.execute("INSERT INTO schedules (user_id, date) VALUES (?, ?) ON CONFLICT (date) DO NOTHING", session[:id], date)
+
+    puts "inserted date"
+
+    schedule_id = db.execute("SELECT id FROM schedules WHERE date = ?", date).first["id"]
+
+    puts "Aquired schedule_id"
+    puts schedule_id
+
+    db.execute("INSERT INTO workouts_schedules (workout_id, schedule_id) VALUES (?, ?)", workout_id, schedule_id)
+
+
+    redirect("/date/#{year}/#{month}/#{day}")
 end
