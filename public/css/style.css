@@ -14,40 +14,47 @@ body {
     overflow-x: hidden;
 }
 
-h1, h2, h3, h4, h5, h6, p {
+h1, h2, h3, h4, h5, h6, p, li, a {
     color: white;
     font-family: "Open Sans", sans-serif;
+    text-decoration: none;
 }
+
+h1 {
+    font-size: 24px;
+}
+
+/*LAYOUT*/
 
 header {
     display: flex;
     width: 100%;
     justify-content: right;
+    align-items: center;
     height: 80px;
     padding: 0 10px;
     background-color: #2C2F32;
     position: fixed;
     bottom: 0;
+    z-index: 100;
 }
 
-header img {
-    width: 30px;
+header img.calendar-icon {
+    width: 42px;
 }
 
-.open-menu-icon {
-    z-index: 10;
+header img.weight-icon {
+    width: 48px;
+}
+
+header img.profile-icon {
+    width: 32px;
+}
+
+header li.logout-button {
     position: absolute;
-    left: 10px;
-    top: 25px;
-    cursor: pointer;
-}
-
-.close-menu-icon {
-    z-index: 10;
-    position: absolute;
-    right: 10px;
-    top: 25px;
-    cursor: pointer;
+    bottom: 0;
+    right: 0;
 }
 
 header nav {
@@ -65,6 +72,9 @@ header nav {
 header nav ul {
     list-style: none;
     display: flex;
+    align-items: center;
+    justify-content: center;
+    column-gap: 32px;
 }
 
 header nav ul li a {
@@ -78,23 +88,34 @@ header nav ul li a {
     column-gap: 15px;
 }
 
+
+
+
+
+/*OVERVIEW*/
+
 .overview-body-wrapper {
     width: 100%;
+    height: auto;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 0 24px;
+    padding: 24px 24px 80px 24px;
+    overflow-y: scroll;
+    overflow-x: hidden;
 }
 
 .overview-body-wrapper h1 {
-    width: 60%;
+    width: 100%;
     text-align: left;
-    margin: 16px 0 8px 0;
+    margin: 0px 0px 16px 16px;
 }
 
 .overview-body-wrapper h2 {
     width: 100%;
     text-align: left;
+    margin-top: 24px;
+    margin-left: 16px;
 }
 
 .calender-wrapper {
@@ -102,14 +123,15 @@ header nav ul li a {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    width: auto;
+    width: 100%;
+    max-width: 450px;
     background-color: #2C2F32;
     border-radius: 12px;
     padding: 16px 32px;
     position: relative;
 }
 
-.calender-wrapper h2 {
+.arrows p {
     font-size: 16px;
     font-weight: 600;
 }
@@ -154,7 +176,6 @@ header nav ul li a {
 }
 
 .arrows {
-    display: flex;
     cursor: pointer;
     display: flex;
     justify-content: space-between;
@@ -167,3 +188,124 @@ img#left_calendar_arrow, img#right_calendar_arrow {
     cursor: pointer;
 }
 
+.todays-workouts {
+    width: 100%;
+}
+
+.weeks-workouts {
+    width: 100%;
+}
+
+.workout-display-box {
+    background-color: #2C2F32;
+    border-radius: 12px;
+    display: flex;    
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 24px;
+    margin: 12px 0;
+    width: 100%;
+}
+
+.workout-display-text {
+    padding: 12px 0;
+}
+
+.workout-display-text h3 {
+    font-size: 1rem;
+    margin-bottom: 8px;
+}
+
+.workout-display-text ul {
+    list-style: none;
+    opacity: 50%;
+    display: flex;
+    column-gap: 8px;
+    font-size: 14px;
+}
+
+.workout-display-text li:first-child {
+    border-right: 1px solid #ffffff;
+    padding-right: 8px;
+}
+
+.icon-box {
+    background-color: #950740;
+    width: 64px;
+    height: 64px;
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
+
+/*WORKOUTS*/
+
+.workouts-wrapper {
+    width: 100%;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    padding: 24px 24px 80px 24px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+
+.workouts-wrapper h1 {
+    margin: 0px 0px 16px 16px;
+}
+
+.add-button {
+    width: 100%;
+    background-color: #950740;
+    padding: 28px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 12px 0;
+    transition: 0.3s;
+}
+
+.add-button:hover {
+    opacity: 70%;
+}
+
+.add-button p.plus {
+    font-size: 36px;
+    line-height: 30px;
+}
+
+
+
+/*DATES*/
+
+.small-icon {
+    width: 32px;
+}
+
+.mini-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 14px;
+}
+
+.trashcan-icon {
+    width: 24px;
+}
+
+.trash-button {
+    background-color: transparent;
+    border: none;
+}
+
+button.icon-box {
+    border: none;
+    font-size: 36px;
+    line-height: 30px;
+}

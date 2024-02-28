@@ -1,9 +1,25 @@
-p this day is:
-p = "#{year}-#{month}-#{day}"
 - day_name = get_weekday_from_date(year, month, day)
-p = day_name
+- month_name = get_month_name(month)
 
-a href="/date/add/#{year}/#{month}/#{day}"
-    button Add Workout
+.workouts-wrapper
+    .mini-header
+        a href="/overview" 
+            img.small-icon src="/img/Expand_left.svg" alt=""/
+        p = "#{day_name}, #{month_name} #{day}"
+        p
+    - workouts.each do |workout|
+        a href="myworkouts/#{workout["id"]}"
+            .workout-display-box 
+                .workout-display-text 
+                    h3 = workout["title"]
+                    ul 
+                        li Exercises 
+                        li 55 minutes
+                form action="/date/#{year}/#{month}/#{day}/delete/#{workout["id"]}" method="post"  
+                    button.trash-button type="submit" 
+                        img.trashcan-icon src="/img/trashcan-icon.svg" alt=""/
 
-p = workouts
+
+    a class="add-button" href="/date/add/#{year}/#{month}/#{day}"
+        p Add Workout
+        p.plus +

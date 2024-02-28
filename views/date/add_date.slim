@@ -1,6 +1,14 @@
-h1 Choose which workout to add: 
+.workouts-wrapper
+    h1 Choose which workout to add: 
 
-- workouts.each do |workout|
-    p = workout["title"]
-    form action="/date/new/#{year}/#{month}/#{day}/#{workout["id"]}" method="post" 
-        button Add
+    - workouts.each do |workout|
+        .workout-display-box 
+            .workout-display-text 
+                h3 = workout["title"]
+                ul 
+                    li Exercises 
+                    li 55 minutes
+            form action="/date/new/#{year}/#{month}/#{day}/#{workout["id"]}" method="post" 
+                button.icon-box type="submit"
+                    p.plus +
+    

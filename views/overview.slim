@@ -8,12 +8,11 @@
 - first_day = month_information[3]
 
 .overview-body-wrapper
-    h1 Overview
-    p = date_today
+    h1 = "Welcome back #{session[:user].split()[0]}!"
     .calender-wrapper
         .arrows
             img src="/img/Arrow_left.svg" alt="left arrow" id="left_calendar_arrow"/
-            h2 id="calendar_title"
+            p id="calendar_title"
             img src="/img/Arrow_right.svg" alt="right arrow" id="right_calendar_arrow"/
         .calender 
             p Mon 
@@ -45,9 +44,25 @@
                         p = day_num
                 - i += 1
     .todays-workouts 
-        h2 = "Todays workout"
-        p = todays_workouts
+        h2 = "Today, #{month_today} #{day_today}"
+        - todays_workouts.each do |workout|
+            .workout-display-box 
+                .workout-display-text 
+                    h3 = workout["title"]
+                    ul 
+                        li Exercises 
+                        li 55 minutes
+                .icon-box 
+                    img src="/img/heart-pulse-icon.svg" alt=""/
 
     .weeks-workouts 
         h2 = "This weeks workouts"
-        p = weeks_workouts
+        - weeks_workouts.each do |workout|
+            .workout-display-box 
+                .workout-display-text 
+                    h3 = workout["title"]
+                    ul 
+                        li Exercises 
+                        li 55 minutes
+                .icon-box 
+                    img src="/img/heart-pulse-icon.svg" alt=""/

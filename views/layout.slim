@@ -12,15 +12,14 @@ html lang="en"
                 ul 
                     li 
                         a href="/overview"
-                            img src="/img/calendar-icon.svg" alt=""/ 
+                            img class="calendar-icon" src="/img/calendar-icon.svg" alt=""/ 
                     li 
                         a href="/myworkouts"
-                            img src="/img/weight-icon.svg" alt=""/
+                            img class="weight-icon" src="/img/weight-icon.svg" alt=""/
                     li
                         a href=""
-                            p #{session[:user]}
-                            img src="/img/pfp.svg" alt="profile picture"/
-                    li
+                            img class="profile-icon" src="/img/profile-icon-white.svg" alt="profile picture"/
+                    li.logout-button
                         a href="/logout" Log out 
 
     == yield

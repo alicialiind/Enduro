@@ -15,7 +15,7 @@ helpers do
     end
 
     def get_month_name(month)
-        return Date::MONTHNAMES[month]
+        return Date::MONTHNAMES[month.to_i]
     end
 
     def get_todays_date()
@@ -129,25 +129,23 @@ get('/logout') do
 end
 
 get('/overview') do
+    db = open_db("db/workout.db")
+
+    #For today:
     todays_date = get_todays_date()
     todays_date_str = "#{todays_date[3]}-#{todays_date[1]}-#{todays_date[0]}"
-    puts "DATE"
-    p todays_date_str
-
-    #For week:
-    today = Date.today
-    week_start = today - (today.wday - 1) % 7
-    week_end = week_start + 6
-    week_start_str = week_start.strftime("%Y-%-m-%-d")
-    week_end_str = week_end.strftime("%Y-%-m-%-d")
-    puts week_start, week_end
-
-    db = open_db("db/workout.db")
 
     todays_workouts = db.execute("SELECT w.* FROM workouts w
     JOIN workouts_schedules ws ON w.id = ws.workout_id
     JOIN schedules s ON ws.schedule_id = s.id
     WHERE s.date = ? AND s.user_id = ?", [todays_date_str, session[:id]])
+
+    #For this week:
+    today = Date.today
+    week_start = today - (today.wday - 1) % 7
+    week_end = week_start + 6
+    week_start_str = week_start.strftime("%Y-%-m-%-d")
+    week_end_str = week_end.strftime("%Y-%-m-%-d")
 
     weeks_workouts = db.execute("SELECT w.* FROM workouts w
     JOIN workouts_schedules ws ON w.id = ws.workout_id
@@ -310,5 +308,20 @@ post('/date/new/:year/:month/:day/:workout_id') do
     db.execute("INSERT INTO workouts_schedules (workout_id, schedule_id) VALUES (?, ?)", workout_id, schedule_id)
 
 
+    redirect("/date/#{year}/#{month}/#{day}")
+end
+
+post('/date/:year/:month/:day/delete/:workout_id') do
+    year = params[:year]
+    month = params[:month]
+    day = params[:day]
+    workout_id = params[:workout_id]
+    date = "#{year}-#{month}-#{day}"
+
+    db = open_db("db/workout.db")
+    date_id = db.execute("SELECT id FROM schedules WHERE date = ?", date).first
+    p "DATE ID: #{date_id}"
+    db.execute("DELETE FROM workouts_schedules WHERE workout_id = ? AND schedule_id = ?", workout_id, date_id["id"])
+    
     redirect("/date/#{year}/#{month}/#{day}")
 end

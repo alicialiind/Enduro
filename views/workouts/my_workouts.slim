@@ -1,9 +1,18 @@
-h1 My workouts
-a href="/create_new_workout" Create new workout 
-br
-br
+.workouts-wrapper 
+    h1 My workouts
 
-- workouts.each do |workout|
-    a href="myworkouts/#{workout["id"]}"  = workout["title"]
-    p = workout["description"]
-    br
+    - workouts.each do |workout|
+        a href="myworkouts/#{workout["id"]}"
+            .workout-display-box 
+                .workout-display-text 
+                    h3 = workout["title"]
+                    ul 
+                        li Exercises 
+                        li 55 minutes
+                .icon-box 
+                    img src="/img/heart-pulse-icon.svg" alt=""/
+
+
+    a class="add-button" href="/create_new_workout" 
+        p Create new workout 
+        p.plus +
