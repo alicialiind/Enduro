@@ -8,6 +8,12 @@ require 'time'
 
 enable :sessions
 
+before do 
+    if request.path_info != '/' && session[:id] == nil && request.path_info != '/login' && request.path_info != '/register'
+        redirect('/login')
+    end
+end
+
 helpers do
     def get_weekday_from_date(year, month, day)
         date = Date.new(year.to_i, month.to_i, day.to_i)
@@ -146,11 +152,14 @@ get('/overview') do
     week_end = week_start + 6
     week_start_str = week_start.strftime("%Y-%-m-%-d")
     week_end_str = week_end.strftime("%Y-%-m-%-d")
+    p week_start_str, week_end_str
 
     weeks_workouts = db.execute("SELECT w.* FROM workouts w
     JOIN workouts_schedules ws ON w.id = ws.workout_id
     JOIN schedules s ON ws.schedule_id = s.id
     WHERE s.date BETWEEN ? AND ? AND s.user_id = ?", [week_start_str, week_end_str, session[:id]])
+    p "-----------------"
+    p weeks_workouts
 
     slim(:overview, locals: { todays_workouts: todays_workouts, weeks_workouts: weeks_workouts })
 end
