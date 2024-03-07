@@ -329,6 +329,12 @@ input[type="checkbox"] {
     column-gap: 32px;
 }
 
+.type-of-run {
+    display: none;
+    flex-direction: column;
+    row-gap: 8px;
+}
+
 .workout-type {
     display: flex;
     flex-direction: row-reverse;
@@ -338,6 +344,9 @@ input[type="checkbox"] {
     column-gap: 4px;
 }
 
+.exercises {
+    display: none;
+}
 
 
 /*DATES*/

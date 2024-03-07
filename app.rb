@@ -164,18 +164,18 @@ get('/overview') do
     slim(:overview, locals: { todays_workouts: todays_workouts, weeks_workouts: weeks_workouts })
 end
 
-get('/myworkouts') do 
+get('/workouts') do 
     db = open_db("db/workout.db")
     workouts = db.execute("SELECT * FROM workouts WHERE user_id = ?", session[:id])
 
-    slim(:"/workouts/my_workouts", locals: { workouts: workouts })
+    slim(:"/workouts/index", locals: { workouts: workouts })
 end
 
-get('/create_new_workout') do 
-    slim(:"/workouts/new_workout")
+get('/workouts/new') do 
+    slim(:"/workouts/new")
 end
 
-post('/workout/new') do 
+post('/workouts/new') do 
     title = params[:title]
     description = params[:description]
     exercises = params[:exercise]
@@ -201,37 +201,37 @@ post('/workout/new') do
         db.execute("INSERT INTO exercises (exercise_name, sets, reps, workout_id) VALUES (?, ?, ?, ?)", exercise[0], exercise[1], exercise[2], workout_id)
     end
     
-    redirect('/myworkouts')
+    redirect('/workouts')
 end
 
-get('/myworkouts/:id') do
+get('/workouts/:id') do
     workout_id = params[:id].to_i
     db = open_db("db/workout.db")
     workout = db.execute("SELECT * FROM workouts WHERE id = ?", workout_id).first
     exercises = db.execute("SELECT * FROM exercises WHERE workout_id = ?", workout_id)
 
-    slim(:"/workouts/show_workout", locals: { workout: workout, exercises: exercises })
+    slim(:"/workouts/show", locals: { workout: workout, exercises: exercises })
 end
 
-post('/myworkouts/:id/delete') do
+post('/workouts/:id/delete') do
     workout_id = params[:id].to_i
     db = open_db("db/workout.db")
     db.execute("DELETE FROM workouts WHERE id = ?", workout_id)
     db.execute("DELETE FROM exercises WHERE workout_id = ?", workout_id)
 
-    redirect('/myworkouts')
+    redirect('/workouts')
 end
 
-get('/myworkouts/:id/edit') do
+get('/workouts/:id/edit') do
     workout_id = params[:id].to_i
     db = open_db("db/workout.db")
     workout_info = db.execute("SELECT * FROM workouts WHERE id = ?", workout_id).first
     exercises = db.execute("SELECT * FROM exercises WHERE workout_id = ?", workout_id)
 
-    slim(:"/workouts/edit_workout", locals: { workout: workout_info, exercises: exercises })
+    slim(:"/workouts/edit", locals: { workout: workout_info, exercises: exercises })
 end
 
-post('/myworkouts/:id/update') do
+post('/workouts/:id/update') do
     id = params[:id].to_i
     title = params[:title]
     description = params[:description]
@@ -262,7 +262,7 @@ post('/myworkouts/:id/update') do
         i += 1
     end
     
-    redirect('/myworkouts')
+    redirect('/workouts')
 end
 
 get('/date/:year/:month/:day') do
@@ -279,10 +279,10 @@ get('/date/:year/:month/:day') do
     JOIN schedules s ON ws.schedule_id = s.id
     WHERE s.date = ? AND s.user_id = ?", [date, session[:id]])
 
-    slim(:"date/show_date", locals: { year: year, month: month, day: day, workouts: workouts })
+    slim(:"date/show", locals: { year: year, month: month, day: day, workouts: workouts })
 end
 
-get('/date/add/:year/:month/:day') do
+get('/date/new/:year/:month/:day') do
     year = params[:year]
     month = params[:month]
     day = params[:day]
@@ -291,7 +291,7 @@ get('/date/add/:year/:month/:day') do
     db = open_db("db/workout.db")
     workouts = db.execute("SELECT * FROM workouts WHERE user_id = ?", session[:id])
 
-    slim(:"date/add_date", locals: { year: year, month: month, day: day, workouts: workouts })
+    slim(:"date/new", locals: { year: year, month: month, day: day, workouts: workouts })
 end
 
 post('/date/new/:year/:month/:day/:workout_id') do

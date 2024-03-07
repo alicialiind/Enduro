@@ -2,7 +2,7 @@
     h1 My workouts
 
     - workouts.each do |workout|
-        a href="myworkouts/#{workout["id"]}"
+        a href="workouts/#{workout["id"]}"
             .workout-display-box 
                 .workout-display-text 
                     h3 = workout["title"]
@@ -13,6 +13,6 @@
                     img src="/img/heart-pulse-icon.svg" alt=""/
 
 
-    a class="add-button" href="/create_new_workout" 
+    a class="add-button" href="/workouts/new" 
         p Create new workout 
         p.plus +

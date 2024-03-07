@@ -1,7 +1,7 @@
 
 .workouts-wrapper
     h1 new workout
-    form action="/workout/new" method="post"
+    form action="/workouts/new" method="post"
         label for="title" Title
         input type="text" id="title" name="title" placeholder="Title"
         input type="text" name="description" placeholder="Description"
@@ -13,7 +13,20 @@
             .workout-type
                 label for="weight_type" Weight training
                 input type="checkbox" name="weight" id="weight_type"
-        div class="exercises" 
+        
+        div.type-of-run id="type_of_run"
+            .workout-type
+                label for="easy_run" Easy Run 
+                input type="checkbox" name="easy_run" id="easy_run"
+            .workout-type
+                label for="tempo_run" Tempo Run
+                input type="checkbox" name="tempo_run" id="tempo_run"
+            .workout-type
+                label for="interval_run" Interval Run
+                input type="checkbox" name="interval_run" id="interval_run"
+
+
+        div class="exercises" id="weight_training"
             h3 Exercises
             div id="exercises"
                 input type="text" name="exercise[]" placeholder="exercise"
@@ -23,6 +36,9 @@
                 p Add new exercise
                 p.plus +
             br
+        
+        div 
+        
         button type="submit" value="Create Workout" class="add-button"
             p Create Workout
             p.plus +
