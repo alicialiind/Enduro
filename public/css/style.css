@@ -335,6 +335,18 @@ input[type="checkbox"] {
     row-gap: 8px;
 }
 
+.easy-run {
+    display: none;
+}
+
+.tempo-run {
+    display: none;
+}
+
+.interval-run {
+    display: none;
+}
+
 .workout-type {
     display: flex;
     flex-direction: row-reverse;

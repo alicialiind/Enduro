@@ -17,13 +17,13 @@
         div.type-of-run id="type_of_run"
             .workout-type
                 label for="easy_run" Easy Run 
-                input type="checkbox" name="easy_run" id="easy_run"
+                input type="checkbox" name="easy_run" id="easy_run_type"
             .workout-type
                 label for="tempo_run" Tempo Run
-                input type="checkbox" name="tempo_run" id="tempo_run"
+                input type="checkbox" name="tempo_run" id="tempo_run_type"
             .workout-type
                 label for="interval_run" Interval Run
-                input type="checkbox" name="interval_run" id="interval_run"
+                input type="checkbox" name="interval_run" id="interval_run_type"
 
 
         div class="exercises" id="weight_training"
@@ -36,8 +36,21 @@
                 p Add new exercise
                 p.plus +
             br
+            label for="time" Estimated Time (min)
+            input type="text" id="time" name="time" placeholder="Time"
         
-        div 
+        div class="easy-run" id="easy_run"
+            label for="time" Distance
+            input type="text" id="time" name="time" placeholder="Time"
+            p OR 
+            label for="time" Estimated Time (min)
+            input type="text" id="time" name="time" placeholder="Time"
+
+        div class="tempo-run" id="tempo_run"
+            h1 tempo run
+
+        div class="interval-run" id="interval_run"
+            h1 intervals
         
         button type="submit" value="Create Workout" class="add-button"
             p Create Workout

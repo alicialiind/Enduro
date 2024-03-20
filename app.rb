@@ -5,11 +5,13 @@ require 'bcrypt'
 require 'sinatra/reloader'
 require 'date'
 require 'time'
+require_relative './model.rb'
 
 enable :sessions
+set :environment, :development
 
 before do 
-    if request.path_info != '/' && session[:id] == nil && request.path_info != '/login' && request.path_info != '/register'
+    if !['/', '/login', '/register', '/users/new'].include?(request.path_info) && session[:id].nil?
         redirect('/login')
     end
 end
@@ -70,24 +72,19 @@ post('/login') do
     email = params[:email]
     password = params[:password]
 
-    db = open_db("db/workout.db")
-    result = db.execute("SELECT * FROM users WHERE email = ?", email).first
+    result = find_user_by_email(email)
 
     if result.nil?
-        puts "User not found"
+        p "User not found"
         redirect('/login')
     else
-        pwdigest = result['pwdigest']
-        id = result['id']
-
-        if BCrypt::Password.new(pwdigest) == password
-            session[:id] = id
+        if authenticate_user(password, result['pwdigest'])
+            session[:id] = result['id']
             session[:user] = result['name']
             session[:user_email] = email
-            
             redirect('/overview')
         else
-            puts "Wrong password"
+            p "Wrong password"
         end
     end
 end
@@ -96,36 +93,16 @@ get('/register') do
     slim :register, layout: false
 end
 
-def image_to_binary(image_path)
-    File.open(image_path, 'rb') { |file| file.read }
-end
-
 post('/users/new') do 
     firstname = params[:firstname]
     lastname = params[:lastname]
     email = params[:email]
     password = params[:password]
     password_confirm = params[:password_confirm]
-    #pfp = params[:pfp]
     name = firstname.strip.capitalize + " " + lastname.strip.capitalize
-    puts "--------------------------"
-    puts name, email, password, password_confirm
+    
+    register_user(name, email, password, password_confirm)
 
-    db = open_db("db/workout.db")
-    email_taken = []
-    email_taken = db.execute("SELECT COUNT (email) AS email_count FROM users WHERE email = ?", email)
-    puts "before if"
-    puts email_taken.first['email_count']
-
-    if email_taken.first['email_count'] > 0
-        puts "Email already in use"
-    elsif password == password_confirm
-        puts "inside main"
-        password_digest = BCrypt::Password.create(password)
-        db.execute("INSERT INTO users (name, email, pwdigest) VALUES (?, ?, ?)", name, email, password_digest,)
-    else
-        puts "Passwords don't match"
-    end
     redirect('/login')
 end
 
@@ -135,38 +112,14 @@ get('/logout') do
 end
 
 get('/overview') do
-    db = open_db("db/workout.db")
-
-    #For today:
-    todays_date = get_todays_date()
-    todays_date_str = "#{todays_date[3]}-#{todays_date[1]}-#{todays_date[0]}"
-
-    todays_workouts = db.execute("SELECT w.* FROM workouts w
-    JOIN workouts_schedules ws ON w.id = ws.workout_id
-    JOIN schedules s ON ws.schedule_id = s.id
-    WHERE s.date = ? AND s.user_id = ?", [todays_date_str, session[:id]])
-
-    #For this week:
-    today = Date.today
-    week_start = today - (today.wday - 1) % 7
-    week_end = week_start + 6
-    week_start_str = week_start.strftime("%Y-%-m-%-d")
-    week_end_str = week_end.strftime("%Y-%-m-%-d")
-    p week_start_str, week_end_str
-
-    weeks_workouts = db.execute("SELECT w.* FROM workouts w
-    JOIN workouts_schedules ws ON w.id = ws.workout_id
-    JOIN schedules s ON ws.schedule_id = s.id
-    WHERE s.date BETWEEN ? AND ? AND s.user_id = ?", [week_start_str, week_end_str, session[:id]])
-    p "-----------------"
-    p weeks_workouts
+    todays_workouts = get_todays_workouts(session[:id])
+    weeks_workouts = get_weeks_workouts(session[:id])
 
     slim(:overview, locals: { todays_workouts: todays_workouts, weeks_workouts: weeks_workouts })
 end
 
 get('/workouts') do 
-    db = open_db("db/workout.db")
-    workouts = db.execute("SELECT * FROM workouts WHERE user_id = ?", session[:id])
+    workouts = get_workouts(session[:id])
 
     slim(:"/workouts/index", locals: { workouts: workouts })
 end
@@ -193,13 +146,7 @@ post('/workouts/new') do
         i += 1
     end
 
-    db = open_db("db/workout.db")
-    db.execute("INSERT INTO workouts (user_id, title, description) VALUES (?, ?, ?)", session[:id], title, description)
-    workout_id = db.last_insert_row_id
-
-    exercise_tot.each do |exercise|
-        db.execute("INSERT INTO exercises (exercise_name, sets, reps, workout_id) VALUES (?, ?, ?, ?)", exercise[0], exercise[1], exercise[2], workout_id)
-    end
+    create_workout(session[:id], title, description, exercise_tot)
     
     redirect('/workouts')
 end
@@ -207,8 +154,8 @@ end
 get('/workouts/:id') do
     workout_id = params[:id].to_i
     db = open_db("db/workout.db")
-    workout = db.execute("SELECT * FROM workouts WHERE id = ?", workout_id).first
-    exercises = db.execute("SELECT * FROM exercises WHERE workout_id = ?", workout_id)
+    workout = get_workout(workout_id);
+    exercises = get_exercises(workout_id);
 
     slim(:"/workouts/show", locals: { workout: workout, exercises: exercises })
 end
@@ -216,9 +163,12 @@ end
 post('/workouts/:id/delete') do
     workout_id = params[:id].to_i
     db = open_db("db/workout.db")
-    db.execute("DELETE FROM workouts WHERE id = ?", workout_id)
-    db.execute("DELETE FROM exercises WHERE workout_id = ?", workout_id)
+    workout_user_id = db.execute("SELECT user_id FROM workouts WHERE id = ?", workout_id).first
 
+    if workout_user_id["user_id"] == session[:id]
+        db.execute("DELETE FROM workouts WHERE id = ?", workout_id)
+        db.execute("DELETE FROM exercises WHERE workout_id = ?", workout_id)
+    end
     redirect('/workouts')
 end
 
@@ -233,35 +183,39 @@ end
 
 post('/workouts/:id/update') do
     id = params[:id].to_i
-    title = params[:title]
-    description = params[:description]
-    exercises = params[:exercise]
-    sets = params[:sets]
-    reps = params[:reps]
-
-    exercise_tot = []
-    i = 0
-    while i < exercises.length()
-        exercise_group = []
-        exercise_group.append(exercises[i])
-        exercise_group.append(sets[i])
-        exercise_group.append(reps[i])
-        exercise_tot.append(exercise_group)
-        i += 1
-    end
-
     db = open_db("db/workout.db")
-    db.execute("UPDATE workouts SET title = ?, description = ? WHERE id = ?", title, description, id)
+    workout_user_id = db.execute("SELECT user_id FROM workouts WHERE id = ?", id).first
 
-    exercise_ids = db.execute("SELECT id FROM exercises WHERE workout_id = ?", id)
+    if workout_user_id["user_id"] == session[:id]
+        title = params[:title]
+        description = params[:description]
+        exercises = params[:exercise]
+        sets = params[:sets]
+        reps = params[:reps]
 
-    i = 0
-    exercise_tot.each do |exercise|
-        exercise_id = exercise_ids[i]["id"]
-        db.execute("UPDATE exercises SET exercise_name = ?, sets = ?, reps = ? WHERE id = ?", exercise[0], exercise[1], exercise[2], exercise_id)
-        i += 1
+        exercise_tot = []
+        i = 0
+        while i < exercises.length()
+            exercise_group = []
+            exercise_group.append(exercises[i])
+            exercise_group.append(sets[i])
+            exercise_group.append(reps[i])
+            exercise_tot.append(exercise_group)
+            i += 1
+        end
+
+        db.execute("UPDATE workouts SET title = ?, description = ? WHERE id = ?", title, description, id)
+
+        exercise_ids = db.execute("SELECT id FROM exercises WHERE workout_id = ?", id)
+
+        i = 0
+        exercise_tot.each do |exercise|
+            exercise_id = exercise_ids[i]["id"]
+            db.execute("UPDATE exercises SET exercise_name = ?, sets = ?, reps = ? WHERE id = ?", exercise[0], exercise[1], exercise[2], exercise_id)
+            i += 1
+        end
     end
-    
+ 
     redirect('/workouts')
 end
 
@@ -328,7 +282,7 @@ post('/date/:year/:month/:day/delete/:workout_id') do
     date = "#{year}-#{month}-#{day}"
 
     db = open_db("db/workout.db")
-    date_id = db.execute("SELECT id FROM schedules WHERE date = ?", date).first
+    date_id = db.execute("SELECT id FROM schedules WHERE date = ? AND user_id = ?", date, session[:id]).first
     p "DATE ID: #{date_id}"
     db.execute("DELETE FROM workouts_schedules WHERE workout_id = ? AND schedule_id = ?", workout_id, date_id["id"])
     

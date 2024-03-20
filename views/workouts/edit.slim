@@ -1,20 +1,21 @@
-form action="/workouts/#{workout['id']}/update" method="POST" 
-    label for="title" Title
-    input type="text" name="title" value="#{workout['title']}" id="title"
-    label for="description" Description
-    input type="text" name="description" value="#{workout['description']}" id="description"
-    label for="run_type" Run 
-    input type="checkbox" name="run" id="run_type"
-    label for="weight_type" Weight training
-    input type="checkbox" name="weight" id="weight_type"
+.workouts-wrapper
+    form action="/workouts/#{workout['id']}/update" method="POST" 
+        label for="title" Title
+        input type="text" name="title" value="#{workout['title']}" id="title"
+        label for="description" Description
+        input type="text" name="description" value="#{workout['description']}" id="description"
+        label for="run_type" Run 
+        input type="checkbox" name="run" id="run_type"
+        label for="weight_type" Weight training
+        input type="checkbox" name="weight" id="weight_type"
 
-    - exercises.each do |exercise|
-        .exercise
-            label for="exercise" Exercise: 
-            input type="text" name="exercise[]" value="#{exercise['exercise_name']}" id="exercise"
-            label for="sets" Sets: 
-            input type="number" name="sets[]" value="#{exercise['sets']}" id="sets"
-            label for="reps" Reps:
-            input type="number" name="reps[]" value="#{exercise['reps']}" id="reps"
-        br
-    input type="submit" value="Confirm updates"/
+        - exercises.each do |exercise|
+            .exercise
+                label for="exercise" Exercise: 
+                input type="text" name="exercise[]" value="#{exercise['exercise_name']}" id="exercise"
+                label for="sets" Sets: 
+                input type="number" name="sets[]" value="#{exercise['sets']}" id="sets"
+                label for="reps" Reps:
+                input type="number" name="reps[]" value="#{exercise['reps']}" id="reps"
+            br
+        input type="submit" value="Confirm updates"/
