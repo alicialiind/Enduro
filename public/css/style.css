@@ -23,7 +23,6 @@ h1, h2, h3, h4, h5, h6, p, li, a, label, input {
 h1 {
     font-size: 24px;
 }
-
 /*LAYOUT*/
 
 header {
@@ -387,4 +386,9 @@ button.icon-box {
     border: none;
     font-size: 36px;
     line-height: 30px;
+}
+
+
+.delete-button {
+    color: black;
 }

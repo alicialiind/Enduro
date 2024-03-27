@@ -10,7 +10,7 @@ p = workout["description"]
 
 a href="/workouts/#{workout["id"]}/edit" 
     button class="add-button" type="button" Edit workout
-form action="#{workout["id"]}/delete" method="POST" 
+form action="/workouts/#{workout["id"]}/delete" method="POST" 
     input class="add-button" type="submit" value="Delete workout"
 
 

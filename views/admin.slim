@@ -1,0 +1,8 @@
+h1 ADMIN 
+h3 Se alla användare: 
+- users.each do |user|
+    p = "User: #{user["name"]}"
+    p = "Email: #{user["email"]}"
+    form action="/#{user["id"]}/delete" method="POST" 
+        input class="delete-button" type="submit" value="Delete user"
+    br

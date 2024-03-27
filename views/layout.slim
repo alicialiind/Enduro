@@ -21,6 +21,9 @@ html lang="en"
                             img class="profile-icon" src="/img/profile-icon-white.svg" alt="profile picture"/
                     li.logout-button
                         a href="/logout" Log out 
+                    - if session[:user] == "admin"
+                        li
+                            a href="/admin" ADMIN
 
     == yield
 
