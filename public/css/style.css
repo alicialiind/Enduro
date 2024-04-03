@@ -324,7 +324,7 @@ input[type="checkbox"] {
     justify-content: left;
     align-items: start;
     width: 100%;
-    margin: 4px 0 16px 0;
+    margin: 8px 0 16px 0;
     column-gap: 32px;
 }
 
@@ -359,10 +359,32 @@ input[type="checkbox"] {
     display: none;
 }
 
+.run-type {
+    margin-top: 16px;
+}
+
+.easy-run p {
+    margin-bottom: 16px;
+}
+
+.input-blocks {
+    display: flex;
+    justify-content: space-between;
+}
+
+.label-input {
+    width: 48%;
+}
+
+
 
 /*DATES*/
 
 .small-icon {
+    width: 32px;
+}
+
+.out-fill {
     width: 32px;
 }
 
@@ -371,6 +393,7 @@ input[type="checkbox"] {
     align-items: center;
     justify-content: space-between;
     font-size: 14px;
+    margin-bottom: 16px;
 }
 
 .trashcan-icon {
@@ -392,3 +415,4 @@ button.icon-box {
 .delete-button {
     color: black;
 }
+

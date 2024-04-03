@@ -1,5 +1,10 @@
 const newExerciseButton = document.getElementById("add_new_exercise_button");
 const exerciseContainer = document.getElementById("exercises");
+const newTempoButton = document.getElementById("add_new_tempo_button");
+const tempoContainer = document.getElementById("tempo_container");
+const newIntervalButton = document.getElementById("add_new_interval_button");
+const intervalContainer = document.getElementById("interval_container");
+
 const calendarTitle = document.getElementById("calendar_title");
 const leftArrow = document.getElementById("left_calendar_arrow");
 const rightArrow = document.getElementById("right_calendar_arrow");
@@ -45,26 +50,56 @@ document.addEventListener("DOMContentLoaded", (event) => {
 function addExercise() {
   let newExercise = document.createElement("div");
   newExercise.innerHTML = `
-        <input type="text" name="exercise[]" placeholder="exercise">
-        <input type="number" name="sets[]" placeholder="sets">
-        <input type="number" name="reps[]" placeholder="reps">
+        <input type="text" name="exercise[]" placeholder="exercise"/>
+        <input type="number" name="sets[]" placeholder="sets"/>
+        <input type="number" name="reps[]" placeholder="reps"/>
     `;
   exerciseContainer.appendChild(newExercise);
 }
 
-newExerciseButton.addEventListener("click", addExercise);
+function addTempo() {
+  let newTempo = document.createElement("div");
+  newTempo.innerHTML = `
+    <div class="input-blocks">
+      <div class="label-input">
+        <label for="time">Distance (km)</label>
+        <input type="text" id="time" name="tempo_distance[]" placeholder="Distance"/>
+      </div>
+      <div class="label-input">
+        <label for="time">Heart Rate Zone</label>
+        <input type="text" id="time" name="tempo_heart[]" placeholder="Heart Rate Zone"/>
+      </div>
+    </div>
+  `;
+  tempoContainer.appendChild(newTempo);
+}
 
-console.log(weightCheckbox.checked);
-console.log(runCheckbox.checked);
+function addInterval() {
+  let newInterval = document.createElement("div");
+  newInterval.innerHTML = `
+    <div class="input-blocks">
+      <div class="label-input">
+        <label for="time">Time (min)</label>
+        <input type="text" id="time" name="interval_time[]" placeholder="Time"/>
+      </div>
+      <div class="label-input">
+        <label for="time">Heart Rate Zone</label>
+        <input type="text" id="time" name="interval_heart[]" placeholder="Heart Rate Zone"/>
+      </div>
+    </div>
+  `;
+  intervalContainer.appendChild(newInterval);
+}
+
+newExerciseButton.addEventListener("click", addExercise);
+newTempoButton.addEventListener("click", addTempo);
+newIntervalButton.addEventListener("click", addInterval);
 
 function handleWeightChecked() {
   isWeightTraining = weightCheckbox.checked;
-  console.log("is weight training: ", isWeightTraining);
-
   if (isWeightTraining && isRunTraining) {
     runCheckbox.checked = false;
   }
-
   if (isWeightTraining) {
     weightTrainingExercises.style.display = "block";
     typeOfRun.style.display = "none";
@@ -84,8 +119,6 @@ function handleWeightChecked() {
 
 function handleRunChecked() {
   isRunTraining = runCheckbox.checked;
-  console.log("is run training: ", isRunTraining);
-
   if (isRunTraining && isWeightTraining) {
     weightCheckbox.checked = false;
   }
@@ -100,8 +133,6 @@ function handleRunChecked() {
 
 function handleEasyRunChecked() {
   isEasyRun = easyRunCheckbox.checked;
-  console.log("is easy run training: ", isEasyRun);
-
   if ((isEasyRun && isTempoRun) || (isEasyRun && isIntervalRun)) {
     tempoRunCheckbox.checked = false;
     intervalRunCheckbox.checked = false;
@@ -118,8 +149,6 @@ function handleEasyRunChecked() {
 
 function handleTempoRunChecked() {
   isTempoRun = tempoRunCheckbox.checked;
-  console.log("is tempo run training: ", isTempoRun);
-
   if ((isEasyRun && isTempoRun) || (isTempoRun && isIntervalRun)) {
     easyRunCheckbox.checked = false;
     intervalRunCheckbox.checked = false;
@@ -136,8 +165,6 @@ function handleTempoRunChecked() {
 
 function handleIntervalRunChecked() {
   isIntervalRun = intervalRunCheckbox.checked;
-  console.log("is interval run training: ", isIntervalRun);
-
   if ((isIntervalRun && isTempoRun) || (isEasyRun && isIntervalRun)) {
     tempoRunCheckbox.checked = false;
     easyRunCheckbox.checked = false;

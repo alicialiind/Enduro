@@ -72,13 +72,90 @@ def get_workouts(user_id)
     return workouts
 end
 
-def create_workout(user_id, title, desc, exercises)
+def create_weight_workout(user_id, title, exercises, time)
+    workout_type = "weight"
+
     db = connect_to_db()
-    db.execute("INSERT INTO workouts (user_id, title, description) VALUES (?, ?, ?)", user_id, title, desc)
+    db.execute("INSERT INTO workouts (user_id, title, duration, workout_type) VALUES (?, ?, ?, ?)", user_id, title, time, workout_type)
     workout_id = db.last_insert_row_id
 
     exercises.each do |exercise|
         db.execute("INSERT INTO exercises (exercise_name, sets, reps, workout_id) VALUES (?, ?, ?, ?)", exercise[0], exercise[1], exercise[2], workout_id)
+    end
+end
+
+def get_group_id()
+    db = connect_to_db()
+    last_group_id_result = db.execute("SELECT MAX(group_id) FROM run_details")
+    last_group_id = last_group_id_result.first[0] || 0
+    group_id = last_group_id + 1
+
+    return group_id
+end
+
+def create_easy_run(user_id, title, distance, duration)
+    db = connect_to_db()
+    workout_type = "easy_run"
+    if distance != ""
+        attribute_type = "distance"
+
+        db.execute("INSERT INTO workouts (user_id, title, workout_type) VALUES (?, ?, ?)", user_id, title, workout_type)
+
+        workout_id = db.last_insert_row_id
+        group_id = get_group_id()
+
+        db.execute("INSERT INTO run_details (workout_id, attribute_type, attribute_value, group_id) VALUES (?, ?, ?, ?)", workout_id, attribute_type, distance, group_id)
+    elsif duration != ""
+        attribute_type = "duration"
+
+        db.execute("INSERT INTO workouts (user_id, title, workout_type, duration) VALUES (?, ?, ?, ?)", user_id, title, workout_type, duration)
+
+        workout_id = db.last_insert_row_id
+        group_id = get_group_id()
+
+        db.execute("INSERT INTO run_details (workout_id, attribute_type, attribute_value, group_id) VALUES (?, ?, ?, ?)", workout_id, attribute_type, duration, group_id)
+    end
+end
+
+def create_tempo_run(user_id, title, distances, heart_rate_zones)
+    db = connect_to_db()
+    workout_type = "tempo_run"
+    group_id = get_group_id()
+
+    db.execute("INSERT INTO workouts (user_id, title, workout_type) VALUES (?, ?, ?)", user_id, title, workout_type)
+    workout_id = db.last_insert_row_id
+    
+    i = 0
+    while i < distances.length
+        attribute_type = "distance"
+        db.execute("INSERT INTO run_details (workout_id, attribute_type, attribute_value, group_id) VALUES (?, ?, ?, ?)", workout_id, attribute_type, distances[i], group_id)
+        
+        attribute_type = "heart_rate_zone"
+        db.execute("INSERT INTO run_details (workout_id, attribute_type, attribute_value, group_id) VALUES (?, ?, ?, ?)", workout_id, attribute_type, heart_rate_zones[i], group_id)
+        group_id += 1
+        i += 1
+    end
+end
+
+def create_interval_run(user_id, title, durations, heart_rate_zones)
+    db = connect_to_db()
+    workout_type = "interval_run"
+    group_id = get_group_id()
+    total_time = 0
+    durations.each { |a| total_time+=a.to_i }
+
+    db.execute("INSERT INTO workouts (user_id, title, duration, workout_type) VALUES (?, ?, ?, ?)", user_id, title, total_time, workout_type)
+    workout_id = db.last_insert_row_id
+    
+    i = 0
+    while i < durations.length
+        attribute_type = "duration"
+        db.execute("INSERT INTO run_details (workout_id, attribute_type, attribute_value, group_id) VALUES (?, ?, ?, ?)", workout_id, attribute_type, durations[i], group_id)
+        
+        attribute_type = "heart_rate_zone"
+        db.execute("INSERT INTO run_details (workout_id, attribute_type, attribute_value, group_id) VALUES (?, ?, ?, ?)", workout_id, attribute_type, heart_rate_zones[i], group_id)
+        group_id += 1
+        i += 1
     end
 end
 

@@ -158,23 +158,60 @@ end
 
 post('/workouts/new') do 
     title = params[:title]
-    description = params[:description]
-    exercises = params[:exercise]
-    sets = params[:sets]
-    reps = params[:reps]
+    run_type = params[:run]
+    weight_type = params[:weight]
 
-    exercise_tot = []
-    i = 0
-    while i < exercises.length()
-        exercise_group = []
-        exercise_group.append(exercises[i])
-        exercise_group.append(sets[i])
-        exercise_group.append(reps[i])
-        exercise_tot.append(exercise_group)
-        i += 1
+    p "------------"
+    if run_type
+        easy_run = params[:easy_run]
+        tempo_run = params[:tempo_run]
+        interval_run = params[:interval_run]
+
+        if easy_run
+            distance = params[:easy_distance]
+            duration = params[:easy_time]
+
+            create_easy_run(session[:id], title, distance, duration)
+            p distance
+            p duration
+
+        elsif tempo_run
+            distances = params[:tempo_distance]
+            heart_rate_zones = params[:tempo_heart]
+
+            create_tempo_run(session[:id], title, distances, heart_rate_zones)
+            p distances
+            p heart_rate_zones
+
+        elsif interval_run
+            durations = params[:interval_time]
+            heart_rate_zones = params[:interval_heart]
+
+            create_interval_run(session[:id], title, durations, heart_rate_zones)
+
+            p durations
+            p heart_rate_zones
+        end
+    elsif weight_type
+        p "WEIGHT"
+        exercises = params[:exercise]
+        sets = params[:sets]
+        reps = params[:reps]
+        time = params[:time]
+
+        exercise_tot = []
+        i = 0
+        while i < exercises.length()
+            exercise_group = []
+            exercise_group.append(exercises[i])
+            exercise_group.append(sets[i])
+            exercise_group.append(reps[i])
+            exercise_tot.append(exercise_group)
+            i += 1
+        end
+
+        create_weight_workout(session[:id], title, exercise_tot, time)
     end
-
-    create_workout(session[:id], title, description, exercise_tot)
     
     redirect('/workouts')
 end

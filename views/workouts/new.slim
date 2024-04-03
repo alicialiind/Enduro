@@ -1,10 +1,13 @@
 
 .workouts-wrapper
-    h1 new workout
+    .mini-header
+        a href="/workouts" 
+            img.small-icon src="/img/Expand_left.svg" alt=""/
+        p = "Create New Workout"
+        p.out-fill
     form action="/workouts/new" method="post"
         label for="title" Title
         input type="text" id="title" name="title" placeholder="Title"
-        input type="text" name="description" placeholder="Description"
         label for="workout-type" Type of Workout
         div.type-of-workout id="workout-type"
             .workout-type
@@ -39,18 +42,38 @@
             label for="time" Estimated Time (min)
             input type="text" id="time" name="time" placeholder="Time"
         
-        div class="easy-run" id="easy_run"
-            label for="time" Distance
-            input type="text" id="time" name="time" placeholder="Time"
+        div class="easy-run run-type" id="easy_run"
+            label for="time" Distance (km)
+            input type="text" id="time" name="easy_distance" placeholder="Distance"
             p OR 
-            label for="time" Estimated Time (min)
-            input type="text" id="time" name="time" placeholder="Time"
+            label for="time" Duration (min)
+            input type="text" id="time" name="easy_time" placeholder="Time"
 
-        div class="tempo-run" id="tempo_run"
-            h1 tempo run
+        div class="tempo-run run-type half-inputs" id="tempo_run"
+            div id="tempo_container"
+                .input-blocks
+                    .label-input
+                        label for="time" Distance (km)
+                        input type="text" id="time" name="tempo_distance[]" placeholder="Distance"
+                    .label-input
+                        label for="time" Heart Rate Zone
+                        input type="text" id="time" name="tempo_heart[]" placeholder="Heart Rate Zone"
+            button type="button" id="add_new_tempo_button" class="add-button add-exercise-button" 
+                p Add Another Set
+                p.plus +
 
-        div class="interval-run" id="interval_run"
-            h1 intervals
+        div class="interval-run run-type half-inputs" id="interval_run"
+            div id="interval_container"
+                .input-blocks
+                    .label-input
+                        label for="time" Time (min)
+                        input type="text" id="time" name="interval_time[]" placeholder="Time"
+                    .label-input
+                        label for="time" Heart Rate Zone
+                        input type="text" id="time" name="interval_heart[]" placeholder="Heart Rate Zone"
+            button type="button" id="add_new_interval_button" class="add-button add-exercise-button" 
+                p Add Another Set
+                p.plus +
         
         button type="submit" value="Create Workout" class="add-button"
             p Create Workout
