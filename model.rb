@@ -173,6 +173,13 @@ def get_exercises(workout_id)
     return exercises
 end
 
+def get_run_details(workout_id)
+    db = connect_to_db()
+    run_details = db.execute("SELECT * FROM run_details WHERE workout_id = ?", workout_id)
+
+    return run_details
+end
+
 def delete_workout(workout_id)
     db = connect_to_db()
     db.execute("DELETE FROM workouts WHERE id = ?", workout_id)

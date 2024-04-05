@@ -161,7 +161,6 @@ post('/workouts/new') do
     run_type = params[:run]
     weight_type = params[:weight]
 
-    p "------------"
     if run_type
         easy_run = params[:easy_run]
         tempo_run = params[:tempo_run]
@@ -172,28 +171,18 @@ post('/workouts/new') do
             duration = params[:easy_time]
 
             create_easy_run(session[:id], title, distance, duration)
-            p distance
-            p duration
-
         elsif tempo_run
             distances = params[:tempo_distance]
             heart_rate_zones = params[:tempo_heart]
 
             create_tempo_run(session[:id], title, distances, heart_rate_zones)
-            p distances
-            p heart_rate_zones
-
         elsif interval_run
             durations = params[:interval_time]
             heart_rate_zones = params[:interval_heart]
 
             create_interval_run(session[:id], title, durations, heart_rate_zones)
-
-            p durations
-            p heart_rate_zones
         end
     elsif weight_type
-        p "WEIGHT"
         exercises = params[:exercise]
         sets = params[:sets]
         reps = params[:reps]
@@ -236,9 +225,30 @@ end
 get('/workouts/:id/edit') do
     workout_id = params[:id].to_i
     workout_info = get_workout(workout_id)
-    exercises = get_exercises(workout_id)
+    workout_type = ""
+    exercises = nil
+    run_details = nil
+    p "----------------"
+    p workout_info
+    p workout_info["workout_type"]
 
-    slim(:"/workouts/edit", locals: { workout: workout_info, exercises: exercises })
+    if workout_info["workout_type"] == "weight"
+        workout_type = "weight"
+        exercises = get_exercises(workout_id)
+        p exercises
+        p "efter slim"
+    elsif workout_info["workout_type"] == "easy_run"
+        workout_type = "easy_run"
+        run_details = get_run_details(workout_id)
+    elsif workout_info["workout_type"] == "tempo_run"
+        workout_type = "tempo_run"
+        run_details = get_run_details(workout_id)
+    elsif workout_info["workout_type"] == "interval_run"
+        workout_type = "interval_run"
+        run_details = get_run_details(workout_id)
+    end
+
+    slim(:"/workouts/edit", locals: { workout: workout_info, run_details: run_details, exercises: exercises, workout_type: workout_type })
 end
 
 post('/workouts/:id/update') do
