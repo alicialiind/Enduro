@@ -1,4 +1,9 @@
 .workouts-wrapper
+    .mini-header
+        a href="/workouts" 
+            img.small-icon src="/img/Expand_left.svg" alt=""/
+        p = "Edit Workout"
+        p.out-fill
     form action="/workouts/#{workout['id']}/update" method="POST" 
         label for="title" Title
         input type="text" name="title" value="#{workout['title']}" id="title"

@@ -1,39 +1,44 @@
-h1 = workout["title"]
-p = "Type of workout: #{workout_type.gsub("_", " ").capitalize}"
-br
+.workouts-wrapper
+    .mini-header
+        a href="/workouts" 
+            img.small-icon src="/img/Expand_left.svg" alt=""/
+        p = workout["title"]
+        p.out-fill
+    p = "Type of workout: #{workout_type.gsub("_", " ").capitalize}"
+    br
 
-- if workout_type == "weight"
-    - exercises.each do |exercise|
-        .exercise
-            p = exercise["exercise_name"]
-            p = "Sets: #{exercise["sets"]}"
-            p = "Reps: #{exercise["reps"]}"
-        br
-- elsif workout_type == "easy_run"
-    - if workout["duration"] == nil 
-        p = "#{run_details[0]["attribute_value"]} km"
-    - else 
-        p = "#{run_details[0]["attribute_value"]} min"
-- elsif workout_type == "tempo_run"
-    - i = 0
-    - while i < run_details.length 
-        .exercise
-            p = "Distance: #{run_details[i]["attribute_value"]} km"
-            p = "Heart Rate Zone: #{run_details[i + 1]["attribute_value"]}"
-        br
-        - i += 2
-- elsif workout_type == "interval_run"
-    - i = 0
-    - while i < run_details.length 
-        .exercise
-            p = "Duration: #{run_details[i]["attribute_value"]} min"
-            p = "Heart Rate Zone: #{run_details[i + 1]["attribute_value"]}"
-        br
-        - i += 2
+    - if workout_type == "weight"
+        - exercises.each do |exercise|
+            .exercise
+                p = exercise["exercise_name"]
+                p = "Sets: #{exercise["sets"]}"
+                p = "Reps: #{exercise["reps"]}"
+            br
+    - elsif workout_type == "easy_run"
+        - if workout["duration"] == nil 
+            p = "#{run_details[0]["attribute_value"]} km"
+        - else 
+            p = "#{run_details[0]["attribute_value"]} min"
+    - elsif workout_type == "tempo_run"
+        - i = 0
+        - while i < run_details.length 
+            .exercise
+                p = "Distance: #{run_details[i]["attribute_value"]} km"
+                p = "Heart Rate Zone: #{run_details[i + 1]["attribute_value"]}"
+            br
+            - i += 2
+    - elsif workout_type == "interval_run"
+        - i = 0
+        - while i < run_details.length 
+            .exercise
+                p = "Duration: #{run_details[i]["attribute_value"]} min"
+                p = "Heart Rate Zone: #{run_details[i + 1]["attribute_value"]}"
+            br
+            - i += 2
 
-a href="/workouts/#{workout["id"]}/edit" 
-    button class="add-button" type="button" Edit workout
-form action="/workouts/#{workout["id"]}/delete" method="POST" 
-    input class="add-button" type="submit" value="Delete workout"
+    a href="/workouts/#{workout["id"]}/edit" 
+        button class="add-button" type="button" Edit workout
+    form action="/workouts/#{workout["id"]}/delete" method="POST" 
+        input class="add-button" type="submit" value="Delete workout"
 
 

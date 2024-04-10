@@ -281,12 +281,18 @@ end
 
 def date_add_workout(user_id, date, workout_id)
     db = connect_to_db()
-    db.execute("INSERT INTO schedules (user_id, date) VALUES (?, ?) ON CONFLICT (date) DO NOTHING", user_id, date)
+    
+    schedule_id = db.execute("SELECT id FROM schedules WHERE date = ? AND user_id = ?", date, user_id).first
 
-    puts "inserted date"
+    p schedule_id
 
-    schedule_id = db.execute("SELECT id FROM schedules WHERE date = ?", date).first["id"]
-
+    if schedule_id == nil
+        db.execute("INSERT INTO schedules (user_id, date) VALUES (?, ?)", user_id, date)
+        schedule_id = db.last_insert_row_id
+        puts "inserted date"  
+    else
+        schedule_id = schedule_id["id"]
+    end
     puts "Aquired schedule_id"
     puts schedule_id
 
@@ -312,14 +318,17 @@ end
 def delete_user(user_id)
     db = connect_to_db()
     db.execute("DELETE FROM schedules WHERE user_id = ?", user_id)
-    workout_ids = db.execute("SELECT * FROM workouts WHERE user_id = ?", user_id).fetchall()
+    workout_ids = db.execute("SELECT id FROM workouts WHERE user_id = ?", user_id)
 
-    workout_ids.each do |workout|
-        db.execute("DELETE FROM workouts_schedules WHERE workout_id = ?", workout_id)
-        db.execute("DELETE FROM exercises WHERE workout_id = ?", workout_id)
+    p workout_ids
+    p user_id
+
+    workout_ids.each do |workout_id|
+        db.execute("DELETE FROM workouts_schedules WHERE workout_id = ?", workout_id["id"])
+        db.execute("DELETE FROM exercises WHERE workout_id = ?", workout_id["id"])
+        db.execute("DELETE FROM run_details WHERE workout_id = ?", workout_id["id"])
     end
 
     db.execute("DELETE FROM workouts WHERE user_id = ?", user_id)
-    db.execute("DELETE FROM users WHERE user_id = ?", user_id)
-    
+    db.execute("DELETE FROM users WHERE id = ?", user_id)
 end
