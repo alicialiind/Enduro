@@ -3,27 +3,44 @@
         label for="title" Title
         input type="text" name="title" value="#{workout['title']}" id="title"
 
-        - if workout["workout_type"] == "weight"
+        - if workout_type == "weight"
             - exercises.each do |exercise|
                 .exercise
-                    label for="exercise" Exercise: 
+                    label for="exercise" Exercise:
                     input type="text" name="exercise[]" value="#{exercise['exercise_name']}" id="exercise"
-                    label for="sets" Sets: 
+                    label for="sets" Sets
                     input type="number" name="sets[]" value="#{exercise['sets']}" id="sets"
-                    label for="reps" Reps:
+                    label for="reps" Reps
                     input type="number" name="reps[]" value="#{exercise['reps']}" id="reps"
                 br
-        - elsif workout["workout_type"] == "easy_run"
-            - run_details.each do |detail|
+        - elsif workout_type == "easy_run"
+            - if workout["duration"] == nil 
+                label for="distance" Distance (km)
+                input type="text" name="easy_distance" value="#{run_details[0]["attribute_value"]}" id="distance"
+            - else 
+                label for="duration" Duration (min)
+                input type="text" name="easy_time" value="#{run_details[0]["attribute_value"]}" id="duration"
+        - elsif workout_type == "tempo_run"
+            - i = 0
+            - while i < run_details.length 
                 .exercise
-                    label for="reps" #{detail["attribute_type"]}:
-                    input type="number" name="easy_distance" value="#{detail['attribute_value']}" id="distance"
-                br
-        - else 
-            - run_details.each do |detail|
-                .exercise
-                    label for="reps" #{detail["attribute_type"]}:
-                    input type="number" name="easy_distance" value="#{detail['attribute_value']}" id="distance"
-                br
+                    label for="distance" Distance (km)
+                    input type="text" name="tempo_distance[]" value="#{run_details[i]["attribute_value"]}" id="distance"
 
-        input type="submit" value="Confirm updates"/
+                    label for="heart_rate_zone" Heart Rate Zone
+                    input type="text" name="tempo_heart[]" value="#{run_details[i + 1]["attribute_value"]}" id="distance"
+                br
+                - i += 2
+        - elsif workout_type == "interval_run"
+            - i = 0
+            - while i < run_details.length 
+                .exercise
+                    label for="duration" Duration (min)
+                    input type="text" name="interval_time[]" value="#{run_details[i]["attribute_value"]}" id="duration"
+
+                    label for="heart_rate_zone" Heart Rate Zone
+                    input type="text" name="interval_heart[]" value="#{run_details[i + 1]["attribute_value"]}" id="distance"
+                br
+                - i += 2
+
+        input class="add-button" type="submit" value="Confirm updates"/

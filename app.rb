@@ -208,9 +208,13 @@ end
 get('/workouts/:id') do
     workout_id = params[:id].to_i
     workout = get_workout(workout_id);
+    workout_type = workout["workout_type"]
     exercises = get_exercises(workout_id);
+    run_details = get_run_details(workout_id)
+    p "------------------"
+    p run_details
 
-    slim(:"/workouts/show", locals: { workout: workout, exercises: exercises })
+    slim(:"/workouts/show", locals: { workout: workout, workout_type: workout_type, exercises: exercises, run_details: run_details })
 end
 
 post('/workouts/:id/delete') do
@@ -224,55 +228,65 @@ end
 
 get('/workouts/:id/edit') do
     workout_id = params[:id].to_i
-    workout_info = get_workout(workout_id)
-    workout_type = ""
-    exercises = nil
-    run_details = nil
-    p "----------------"
-    p workout_info
-    p workout_info["workout_type"]
+    workout = get_workout(workout_id);
+    workout_type = workout["workout_type"]
+    exercises = get_exercises(workout_id);
+    run_details = get_run_details(workout_id)
+    p "------------------"
+    p run_details
 
-    if workout_info["workout_type"] == "weight"
-        workout_type = "weight"
-        exercises = get_exercises(workout_id)
-        p exercises
-        p "efter slim"
-    elsif workout_info["workout_type"] == "easy_run"
-        workout_type = "easy_run"
-        run_details = get_run_details(workout_id)
-    elsif workout_info["workout_type"] == "tempo_run"
-        workout_type = "tempo_run"
-        run_details = get_run_details(workout_id)
-    elsif workout_info["workout_type"] == "interval_run"
-        workout_type = "interval_run"
-        run_details = get_run_details(workout_id)
-    end
-
-    slim(:"/workouts/edit", locals: { workout: workout_info, run_details: run_details, exercises: exercises, workout_type: workout_type })
+    slim(:"/workouts/edit", locals: { workout: workout, workout_type: workout_type, exercises: exercises, run_details: run_details })
 end
 
 post('/workouts/:id/update') do
     workout_id = params[:id].to_i
+    workout_type = get_workout_type(workout_id)
 
     if authenticate_workout(workout_id, session[:id])
         title = params[:title]
-        description = params[:description]
-        exercises = params[:exercise]
-        sets = params[:sets]
-        reps = params[:reps]
+        p workout_type
+        if workout_type == "easy_run"
+            p "-----------"
+            distance = params[:easy_distance]
+            duration = params[:easy_time]
+            p distance
+            p duration
 
-        exercise_tot = []
-        i = 0
-        while i < exercises.length()
-            exercise_group = []
-            exercise_group.append(exercises[i])
-            exercise_group.append(sets[i])
-            exercise_group.append(reps[i])
-            exercise_tot.append(exercise_group)
-            i += 1
+            update_easy_run(workout_id, title, distance, duration)
+        elsif workout_type == "tempo_run"
+            distances = params[:tempo_distance]
+            heart_rate_zones = params[:tempo_heart]
+            p "-----------"
+            p distances
+            p heart_rate_zones
+
+            update_tempo_run(workout_id, title, distances, heart_rate_zones)
+        elsif workout_type == "interval_run"
+            durations = params[:interval_time]
+            heart_rate_zones = params[:interval_heart]
+            p "-----------"
+            p durations
+            p heart_rate_zones
+
+            update_interval_run(workout_id, title, durations, heart_rate_zones)
+        elsif workout_type == "weight"
+            exercises = params[:exercise]
+            sets = params[:sets]
+            reps = params[:reps]
+
+            exercise_tot = []
+            i = 0
+            while i < exercises.length()
+                exercise_group = []
+                exercise_group.append(exercises[i])
+                exercise_group.append(sets[i])
+                exercise_group.append(reps[i])
+                exercise_tot.append(exercise_group)
+                i += 1
+            end
+
+            update_weight_workout(workout_id, title, exercise_tot)
         end
-
-        update_workout(workout_id, title, description, exercise_tot)
     end
  
     redirect('/workouts')

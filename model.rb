@@ -84,13 +84,22 @@ def create_weight_workout(user_id, title, exercises, time)
     end
 end
 
-def get_group_id()
+def get_group_id(workout_id)
     db = connect_to_db()
-    last_group_id_result = db.execute("SELECT MAX(group_id) FROM run_details")
-    last_group_id = last_group_id_result.first[0] || 0
-    group_id = last_group_id + 1
+    first_group_id_result = db.execute("SELECT MIN(group_id) FROM run_details WHERE workout_id = ?", workout_id)
+    first_group_id = first_group_id_result.first[0]
 
-    return group_id
+    if first_group_id.nil?
+        last_group_id_result = db.execute("SELECT MAX(group_id) FROM run_details")
+        last_group_id = last_group_id_result.first[0] || 0
+        new_group_id = last_group_id + 1
+
+        return new_group_id
+    else
+        return first_group_id
+    end
+
+    return first_group_id
 end
 
 def create_easy_run(user_id, title, distance, duration)
@@ -102,7 +111,7 @@ def create_easy_run(user_id, title, distance, duration)
         db.execute("INSERT INTO workouts (user_id, title, workout_type) VALUES (?, ?, ?)", user_id, title, workout_type)
 
         workout_id = db.last_insert_row_id
-        group_id = get_group_id()
+        group_id = get_group_id(workout_id)
 
         db.execute("INSERT INTO run_details (workout_id, attribute_type, attribute_value, group_id) VALUES (?, ?, ?, ?)", workout_id, attribute_type, distance, group_id)
     elsif duration != ""
@@ -111,7 +120,7 @@ def create_easy_run(user_id, title, distance, duration)
         db.execute("INSERT INTO workouts (user_id, title, workout_type, duration) VALUES (?, ?, ?, ?)", user_id, title, workout_type, duration)
 
         workout_id = db.last_insert_row_id
-        group_id = get_group_id()
+        group_id = get_group_id(workout_id)
 
         db.execute("INSERT INTO run_details (workout_id, attribute_type, attribute_value, group_id) VALUES (?, ?, ?, ?)", workout_id, attribute_type, duration, group_id)
     end
@@ -120,11 +129,12 @@ end
 def create_tempo_run(user_id, title, distances, heart_rate_zones)
     db = connect_to_db()
     workout_type = "tempo_run"
-    group_id = get_group_id()
 
     db.execute("INSERT INTO workouts (user_id, title, workout_type) VALUES (?, ?, ?)", user_id, title, workout_type)
     workout_id = db.last_insert_row_id
     
+    group_id = get_group_id(workout_id)
+
     i = 0
     while i < distances.length
         attribute_type = "distance"
@@ -140,12 +150,13 @@ end
 def create_interval_run(user_id, title, durations, heart_rate_zones)
     db = connect_to_db()
     workout_type = "interval_run"
-    group_id = get_group_id()
     total_time = 0
     durations.each { |a| total_time+=a.to_i }
 
     db.execute("INSERT INTO workouts (user_id, title, duration, workout_type) VALUES (?, ?, ?, ?)", user_id, title, total_time, workout_type)
     workout_id = db.last_insert_row_id
+
+    group_id = get_group_id(workout_id)
     
     i = 0
     while i < durations.length
@@ -166,6 +177,13 @@ def get_workout(workout_id)
     return workout
 end
 
+def get_workout_type(workout_id)
+    db = connect_to_db()
+    workout_type = db.execute("SELECT workout_type FROM workouts WHERE id = ?", workout_id).first["workout_type"]
+
+    return workout_type
+end
+
 def get_exercises(workout_id)
     db = connect_to_db()
     exercises = db.execute("SELECT * FROM exercises WHERE workout_id = ?", workout_id)
@@ -184,6 +202,7 @@ def delete_workout(workout_id)
     db = connect_to_db()
     db.execute("DELETE FROM workouts WHERE id = ?", workout_id)
     db.execute("DELETE FROM exercises WHERE workout_id = ?", workout_id)
+    db.execute("DELETE FROM run_details WHERE workout_id = ?", workout_id)
 end
 
 def authenticate_workout(workout_id, user_id)
@@ -194,9 +213,52 @@ def authenticate_workout(workout_id, user_id)
     end
 end
 
-def update_workout(workout_id, title, desc, exercises)
+def update_easy_run(workout_id, title, distance, duration)
     db = connect_to_db()
-    db.execute("UPDATE workouts SET title = ?, description = ? WHERE id = ?", title, desc, workout_id)
+
+    if distance != nil
+        db.execute("UPDATE workouts SET title = ? WHERE id = ?", title, workout_id)
+        db.execute("UPDATE run_details SET attribute_value = ? WHERE workout_id = ?", distance, workout_id)
+    elsif duration != nil
+        db.execute("UPDATE workouts SET title = ? WHERE id = ?", title, workout_id)
+        db.execute("UPDATE run_details SET attribute_value = ? WHERE workout_id = ?", duration, workout_id)
+    end
+end
+
+def update_tempo_run(workout_id, title, distances, heart_rate_zones)
+    db = connect_to_db()
+    group_id = get_group_id(workout_id)
+    db.execute("UPDATE workouts SET title = ? WHERE id = ?", title, workout_id)
+    
+    i = 0
+    while i < distances.length
+        db.execute("UPDATE run_details SET attribute_value = ? WHERE group_id = ?", distances[i], group_id)
+        
+        db.execute("UPDATE run_details SET attribute_value = ? WHERE group_id = ?", heart_rate_zones[i], group_id)
+        group_id += 1
+        i += 1
+    end
+end
+
+def update_interval_run(workout_id, title, durations, heart_rate_zones)
+    db = connect_to_db()
+    group_id = get_group_id(workout_id)
+    p group_id
+    db.execute("UPDATE workouts SET title = ? WHERE id = ?", title, workout_id)
+    
+    i = 0
+    while i < durations.length
+        db.execute("UPDATE run_details SET attribute_value = ? WHERE group_id = ?", durations[i], group_id)
+        
+        db.execute("UPDATE run_details SET attribute_value = ? WHERE group_id = ?", heart_rate_zones[i], group_id)
+        group_id += 1
+        i += 1
+    end
+end
+
+def update_weight_workout(workout_id, title, exercises)
+    db = connect_to_db()
+    db.execute("UPDATE workouts SET title = ?, WHERE id = ?", title, workout_id)
     exercise_ids = db.execute("SELECT id FROM exercises WHERE workout_id = ?", workout_id)
 
     i = 0
