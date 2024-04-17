@@ -8,13 +8,21 @@ require 'time'
 require_relative './model.rb'
 require 'sinatra/flash'
 
+# Enables session support in Sinatra for managing user sessions
 enable :sessions
+
+# Sets the environment for Sinatra to development mode for detailed error logs and live reloading
 set :environment, :development
 
+# Includes the methods defined in the Model module for use in route handlers
+include Model
+
+# Constants to manage login attempts and cooldown periods to prevent brute force attacks
 MAX_ATTEMPTS = 3
 INITIAL_COOLDOWN = 2
-MAX_COOLDOWN = 300 
+MAX_COOLDOWN = 300
 
+# Route guard to restrict access to authenticated users and redirect unauthorized access to login
 before do 
     if !['/', '/login', '/register', '/users/new'].include?(request.path_info) && session[:id].nil?
         redirect('/login')
@@ -25,8 +33,7 @@ before do
     end
 end
 
-#COOLDOWN FUNCTION
-
+# Implementing cooldown logic to limit login attempts after reaching MAX_ATTEMPTS
 before '/login' do
     session[:attempts] ||= 0
     if session[:attempts] >= MAX_ATTEMPTS
@@ -37,16 +44,32 @@ before '/login' do
     end
 end
 
+# Helper functions to support various features in the application
 helpers do
+    # Returns the name of the weekday for a given date
+    #
+    # @param [Integer] year, The year of the date
+    # @param [Integer] month, The month of the date
+    # @param [Integer] day, The day of the date
+    #
+    # @return [String] The weekday name
     def get_weekday_from_date(year, month, day)
         date = Date.new(year.to_i, month.to_i, day.to_i)
         return date.strftime('%A')
     end
 
+    # Returns the name of the month for a given month number
+    #
+    # @param [Integer] month, The month numberc
+    #
+    # @return [String] The name of the month
     def get_month_name(month)
         return Date::MONTHNAMES[month.to_i]
     end
 
+    # Generates today's date details including day number, month number, month name, and year
+    #
+    # @return [Array] Details of today's date
     def get_todays_date()
         d = DateTime.now
         day_today = d.strftime("%d").to_i
@@ -59,6 +82,12 @@ helpers do
         return date
     end
 
+    # Generates calendar information for a specific month and year
+    #
+    # @param [Integer] year, The year
+    # @param [Integer] month, The month number
+    #
+    # @return [Array] Includes year, month name, total days in the month, and weekday of the first day
     def get_calendar(year, month)
         days = Date.new(year, month, -1).day
         first_day = Date.new(year, month, 1)
@@ -70,19 +99,35 @@ helpers do
         return month_information
     end
 
+    # Simple counter to increment a number by one
+    #
+    # @param [Integer] start_number, The number to be incremented
+    #
+    # @return [Integer] The incremented number
     def counter(start_number)
         return start_number += 1
     end
 end
 
+
+# Display Landing Page
+#
 get('/') do 
     slim :start, layout: false
 end
 
+# Displays a login form
 get('/login') do 
     slim :login, layout: false
 end
 
+# Attempts to authenticate a user and sets session details upon successful login. Redirects to the overview page if successful, or prompts to try again if unsuccessful.
+#
+# @param [String] email The email entered by the user.
+# @param [String] password The password entered by the user.
+#
+# @see Model#find_user_by_email
+# @see Model#authenticate_user
 post('/login') do
     email = params[:email]
     password = params[:password]
@@ -105,10 +150,22 @@ post('/login') do
     end
 end
 
+# Displays a register form
+#
 get('/register') do
     slim :register, layout: false
 end
 
+# Registers a new user using provided details and redirects to login upon successful registration.
+# Assumes validation of form data is handled on the client side.
+#
+# @param [String] firstname, The first name of the user.
+# @param [String] lastname, The last name of the user.
+# @param [String] email, The email address of the user.
+# @param [String] password, The desired password.
+# @param [String] password_confirm, The password confirmation, should match the password.
+#
+# @see Model#register_user
 post('/users/new') do 
     firstname = params[:firstname]
     lastname = params[:lastname]
@@ -122,23 +179,38 @@ post('/users/new') do
     redirect('/login')
 end
 
+# Logs out user and clears the session
+# 
 get('/logout') do
     session.clear
     redirect('/')
 end
 
+# Displays admin page
+#
 get('/admin') do
     users = get_all_users()
 
     slim(:"/admin", locals: { users: users })
 end
 
+# Deletes a user
+#
+# @param [Integer] user_id, The ID of the user
+#
+# @see Model#delete_user
 post('/:user/delete') do
     user_id = params[:user].to_i
     delete_user(user_id)
     redirect('/admin')
 end
 
+# Displays an overview of today's and this week's workouts for the logged-in user
+#
+# @param [Integer] session[:id] The ID of the logged-in user
+#
+# @see Model#get_todays_workouts
+# @see Model#get_weeks_workouts
 get('/overview') do
     todays_workouts = get_todays_workouts(session[:id])
     weeks_workouts = get_weeks_workouts(session[:id])
@@ -146,16 +218,31 @@ get('/overview') do
     slim(:overview, locals: { todays_workouts: todays_workouts, weeks_workouts: weeks_workouts })
 end
 
+# Displays a list of all workouts for the logged-in user
+#
+# @param [Integer] session[:id] The ID of the logged-in user
+#
+# @see Model#get_workouts
 get('/workouts') do 
     workouts = get_workouts(session[:id])
 
     slim(:"/workouts/index", locals: { workouts: workouts })
 end
 
+# Displays a form to create a new workout
+#
 get('/workouts/new') do 
     slim(:"/workouts/new")
 end
 
+# Creates a new workout based on provided details and redirects to the workouts list page
+#
+# @param [Integer] session[:id] The ID of the logged-in user
+#
+# @see Model#create_easy_run
+# @see Model#create_tempo_run
+# @see Model#create_interval_run
+# @see Model#create_weight_workout
 post('/workouts/new') do 
     title = params[:title]
     run_type = params[:run]
@@ -205,11 +292,18 @@ post('/workouts/new') do
     redirect('/workouts')
 end
 
+# Displays a single workout
+#
+# @param [Integer] :id The ID of the workout
+#
+# @see Model#get_workout
+# @see Model#get_exercises
+# @see Model#get_run_details
 get('/workouts/:id') do
     workout_id = params[:id].to_i
-    workout = get_workout(workout_id);
+    workout = get_workout(workout_id)
     workout_type = workout["workout_type"]
-    exercises = get_exercises(workout_id);
+    exercises = get_exercises(workout_id)
     run_details = get_run_details(workout_id)
     p "------------------"
     p run_details
@@ -217,6 +311,13 @@ get('/workouts/:id') do
     slim(:"/workouts/show", locals: { workout: workout, workout_type: workout_type, exercises: exercises, run_details: run_details })
 end
 
+# Deletes a workout and redirects to the workouts list
+#
+# @param [Integer] :id The ID of the workout
+# @param [Integer] session[:id] The ID of the logged-in user
+#
+# @see Model#authenticate_workout
+# @see Model#delete_workout
 post('/workouts/:id/delete') do
     workout_id = params[:id].to_i
     if authenticate_workout(workout_id, session[:id])
@@ -226,11 +327,18 @@ post('/workouts/:id/delete') do
     redirect('/workouts')
 end
 
+# Displays a form to edit an existing workout
+#
+# @param [Integer] :id The ID of the workout
+#
+# @see Model#get_workout
+# @see Model#get_exercises
+# @see Model#get_run_details
 get('/workouts/:id/edit') do
     workout_id = params[:id].to_i
-    workout = get_workout(workout_id);
+    workout = get_workout(workout_id)
     workout_type = workout["workout_type"]
-    exercises = get_exercises(workout_id);
+    exercises = get_exercises(workout_id)
     run_details = get_run_details(workout_id)
     p "------------------"
     p run_details
@@ -238,6 +346,16 @@ get('/workouts/:id/edit') do
     slim(:"/workouts/edit", locals: { workout: workout, workout_type: workout_type, exercises: exercises, run_details: run_details })
 end
 
+# Updates an existing workout and redirects to the workout details page
+#
+# @param [Integer] :id The ID of the workout to update
+# @param [Integer] session[:id] The ID of the logged-in user
+#
+# @see Model#authenticate_workout
+# @see Model#update_easy_run
+# @see Model#update_tempo_run
+# @see Model#update_interval_run
+# @see Model#update_weight_workout
 post('/workouts/:id/update') do
     workout_id = params[:id].to_i
     workout_type = get_workout_type(workout_id)
@@ -292,6 +410,12 @@ post('/workouts/:id/update') do
     redirect('/workouts')
 end
 
+# Displays the workouts on a specific date
+#
+# @param [Integer] session[:id] The ID of the user
+# @param [String] date The specific date to show workouts for
+#
+# @see Model#date_get_workouts
 get('/date/:year/:month/:day') do
     year = params[:year]
     month = params[:month]
@@ -302,6 +426,11 @@ get('/date/:year/:month/:day') do
     slim(:"date/show", locals: { year: year, month: month, day: day, workouts: workouts })
 end
 
+# Displays a list of workouts to add to a specific date
+#
+# @param [Integer] session[:id] The ID of the user
+#
+# @see Model#get_workouts
 get('/date/new/:year/:month/:day') do
     year = params[:year]
     month = params[:month]
@@ -312,6 +441,13 @@ get('/date/new/:year/:month/:day') do
     slim(:"date/new", locals: { year: year, month: month, day: day, workouts: workouts })
 end
 
+# Adds a workout to a specific date and redirects to the day view
+#
+# @param [Integer] session[:id] The ID of the user
+# @param [String] date The date to add the workout to
+# @param [Integer] workout_id The ID of the workout to add
+#
+# @see Model#date_add_workout
 post('/date/new/:year/:month/:day/:workout_id') do
     year = params[:year]
     month = params[:month]
@@ -326,6 +462,13 @@ post('/date/new/:year/:month/:day/:workout_id') do
     redirect("/date/#{year}/#{month}/#{day}")
 end
 
+# Deletes a workout from a specific date
+#
+# @param [Integer] session[:id] The ID of the user
+# @param [Integer] workout_id The ID of the workout
+# @param [String] date The date from which to delete the workout
+#
+# @see Model#date_delete_workout
 post('/date/:year/:month/:day/delete/:workout_id') do
     year = params[:year]
     month = params[:month]
