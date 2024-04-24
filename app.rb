@@ -194,14 +194,17 @@ get('/admin') do
     slim(:"/admin", locals: { users: users })
 end
 
-# Deletes a user
+# Attempts to authenticate admin and deletes a user if successful. 
 #
 # @param [Integer] user_id, The ID of the user
 #
+# @see Model#authenticate_admin
 # @see Model#delete_user
 post('/:user/delete') do
-    user_id = params[:user].to_i
-    delete_user(user_id)
+    if authenticate_admin(session[:user])
+        user_id = params[:user].to_i
+        delete_user(user_id)
+    end
     redirect('/admin')
 end
 

@@ -58,6 +58,10 @@ module Model
         BCrypt::Password.new(pwdigest) == password
     end
 
+    def authenticate_admin(username)
+        return username == 'admin'
+    end
+
     # Retrieves all workouts for the current user on today's date
     #
     # @param [Integer] user_id the ID of the user
@@ -315,7 +319,7 @@ module Model
     def authenticate_workout(workout_id, user_id)
         db = connect_to_db()
         workout_user_id = db.execute("SELECT user_id FROM workouts WHERE id = ?", workout_id).first
-        if workout_user_id["user_id"] == session[:id]
+        if workout_user_id["user_id"] == user_id
             return true
         end
     end
