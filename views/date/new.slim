@@ -6,8 +6,33 @@
             .workout-display-text 
                 h3 = workout["title"]
                 ul 
-                    li Exercises 
-                    li 55 minutes
+                        - if workout["workout_type"] == "weight"
+                            li Exercises 
+                            li = "#{workout["duration"]} minutes"
+                        - if workout["workout_type"] == "easy_run" && workout["duration"] != nil 
+                            li Easy run 
+                            li = "#{workout["duration"]} minutes"
+                        - elsif workout["workout_type"] == "easy_run" && workout["duration"] == nil 
+                            li Easy run 
+                            - run_details.each do |detail|
+                                -if detail[0] != nil
+                                    -if workout["id"] == detail[0]["workout_id"] 
+                                        p = "#{detail[0]["attribute_value"]} km"
+                        - if workout["workout_type"] == "tempo_run"
+                            li Tempo run 
+                            - total = 0
+                            - run_details.each do |detail|
+                                -if detail[0] != nil
+                                    -if workout["id"] == detail[0]["workout_id"]
+                                        - detail.each do |tempo_detail|
+                                            - if tempo_detail["attribute_type"] == "distance"
+                                                -total += tempo_detail["attribute_value"].to_f
+                            p = "#{total} km"
+                            
+                        - if workout["workout_type"] == "interval_run"
+                            li Interval run 
+                            li = "#{workout["duration"]} minutes"
+                            
             form action="/date/new/#{year}/#{month}/#{day}/#{workout["id"]}" method="post" 
                 button.icon-box type="submit"
                     p.plus +

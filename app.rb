@@ -14,6 +14,8 @@ enable :sessions
 # Sets the environment for Sinatra to development mode for detailed error logs and live reloading
 set :environment, :development
 
+set :public_folder, 'public'
+
 # Includes the methods defined in the Model module for use in route handlers
 include Model
 
@@ -217,8 +219,15 @@ end
 get('/overview') do
     todays_workouts = get_todays_workouts(session[:id])
     weeks_workouts = get_weeks_workouts(session[:id])
+    run_details = []
+    todays_workouts.each do |workout|
+        run_details.append(get_run_details(workout["id"]))
+    end
+    weeks_workouts.each do |workout|
+        run_details.append(get_run_details(workout["id"]))
+    end
 
-    slim(:overview, locals: { todays_workouts: todays_workouts, weeks_workouts: weeks_workouts })
+    slim(:overview, locals: { todays_workouts: todays_workouts, weeks_workouts: weeks_workouts, run_details: run_details })
 end
 
 # Displays a list of all workouts for the logged-in user
@@ -228,8 +237,12 @@ end
 # @see Model#get_workouts
 get('/workouts') do 
     workouts = get_workouts(session[:id])
+    run_details = []
+    workouts.each do |workout|
+        run_details.append(get_run_details(workout["id"]))
+    end
 
-    slim(:"/workouts/index", locals: { workouts: workouts })
+    slim(:"/workouts/index", locals: { workouts: workouts, run_details: run_details })
 end
 
 # Displays a form to create a new workout
@@ -426,7 +439,11 @@ get('/date/:year/:month/:day') do
     date = year + "-" + month + "-" + day
 
     workouts = date_get_workouts(session[:id], date)
-    slim(:"date/show", locals: { year: year, month: month, day: day, workouts: workouts })
+    run_details = []
+    workouts.each do |workout|
+        run_details.append(get_run_details(workout["id"]))
+    end
+    slim(:"date/show", locals: { year: year, month: month, day: day, workouts: workouts, run_details: run_details })
 end
 
 # Displays a list of workouts to add to a specific date
@@ -441,7 +458,11 @@ get('/date/new/:year/:month/:day') do
     date = "#{year}-#{month}-#{day}"
 
     workouts = get_workouts(session[:id])
-    slim(:"date/new", locals: { year: year, month: month, day: day, workouts: workouts })
+    run_details = []
+    workouts.each do |workout|
+        run_details.append(get_run_details(workout["id"]))
+    end
+    slim(:"date/new", locals: { year: year, month: month, day: day, workouts: workouts, run_details: run_details })
 end
 
 # Adds a workout to a specific date and redirects to the day view

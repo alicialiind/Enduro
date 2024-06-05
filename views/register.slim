@@ -1,10 +1,20 @@
-h1 Register
+doctype html
+html
+  head
+    meta charset="UTF-8"/
+    meta http-equiv="X-UA-Compatible" content="IE=edge"/
+    meta name="viewport" content="width=device-width, initial-scale=1.0"/
+    link rel="stylesheet" href="/css/style.css"/
+    title Document
+  body
+    .start-wrapper 
+        h1 Register
 
-form action="/users/new" method="POST" 
-    input type="text" name="firstname" placeholder="First name"
-    input type="text" name="lastname" placeholder="Last name"
-    input type="email" name="email" placeholder="Email"
-    input type="password" name="password" placeholder="Enter password"
-    input type="password" name="password_confirm" placeholder="Confirm password"
-    input type="submit" value="Register"
-a href="/login" Already have an account? Log in 
+        form action="/users/new" method="POST" 
+            input type="text" name="firstname" placeholder="First name"
+            input type="text" name="lastname" placeholder="Last name"
+            input type="email" name="email" placeholder="Email"
+            input type="password" name="password" placeholder="Enter password"
+            input type="password" name="password_confirm" placeholder="Confirm password"
+            input type="submit" value="Register" class="login-button button-narrow"
+        a href="/login" Already have an account? Log in 
