@@ -6,7 +6,6 @@ require 'sinatra/reloader'
 require 'date'
 require 'time'
 require_relative './model.rb'
-require 'sinatra/flash'
 
 # Enables session support in Sinatra for managing user sessions
 enable :sessions

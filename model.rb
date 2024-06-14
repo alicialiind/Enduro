@@ -2,7 +2,6 @@ require 'sinatra'
 require 'sqlite3'
 require 'bcrypt'
 require 'sinatra/reloader'
-require 'sinatra/flash'
 
 module Model
 
